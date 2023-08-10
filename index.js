@@ -15,13 +15,15 @@ class Player {
   constructor({ coordinates, velocity }) {
     this.coordinates = coordinates;
     this.velocity = velocity;
+    this.rotation = 0
   }
 
   show() {
-    // just checking the center position
-    // CONTEXT.arc(this.coordinates.x, this.coordinates.y, 5, 0, Math.PI * 2, false)
-    // CONTEXT.fillStyle = 'yellow'
-    // CONTEXT.fill()
+    CONTEXT.save()
+
+    CONTEXT.translate(this.coordinates.x, this.coordinates.y);
+    CONTEXT.rotate(this.rotation)
+    CONTEXT.translate(-this.coordinates.x, -this.coordinates.y);
 
     CONTEXT.beginPath();
     CONTEXT.moveTo(this.coordinates.x, this.coordinates.y - 25); // Top of the spaceship
@@ -37,6 +39,13 @@ class Player {
 
     CONTEXT.strokeStyle = "white";
     CONTEXT.stroke();
+
+    // just checking the center position
+    // CONTEXT.arc(this.coordinates.x, this.coordinates.y, 5, 0, Math.PI * 2, false)
+    // CONTEXT.fillStyle = 'yellow'
+    // CONTEXT.fill()
+
+    CONTEXT.restore()
   }
 
   updatePlayer() {
@@ -72,16 +81,19 @@ function movement() {
   CONTEXT.fillStyle = gradient;
   CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
   window.requestAnimationFrame(movement);
+
   player.updatePlayer();
+  player.velocity.x = 0
+  player.velocity.y = 0
 
   if (KEYPRESS.w_key.pressed) {
-    player.velocity.y = -1;
+    player.velocity.y = -5;
   } else if (KEYPRESS.a_key.pressed) {
-    player.velocity.x = -1;
+    player.rotation -= 0.05;
   } else if (KEYPRESS.s_key.pressed) {
-    player.velocity.y = 1;
+    player.velocity.y = 5;
   } else if (KEYPRESS.d_key.pressed) {
-    player.velocity.x = 1;
+    player.rotation += 0.05;
   }
 }
 
@@ -103,3 +115,20 @@ window.addEventListener("keydown", (e) => {
       break;
   }
 });
+
+window.addEventListener("keyup", (e) => {
+    switch (e.code) {
+      case "KeyW":
+        KEYPRESS.w_key.pressed = false;
+        break;
+      case "KeyA":
+        KEYPRESS.a_key.pressed = false;
+        break;
+      case "KeyS":
+        KEYPRESS.s_key.pressed = false;
+        break;
+      case "KeyD":
+        KEYPRESS.d_key.pressed = false;
+        break;
+    }
+  });
