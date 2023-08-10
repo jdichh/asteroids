@@ -18,7 +18,7 @@ class Player {
     this.rotation = 0;
   }
 
-  show() {
+  drawPlayer() {
     CONTEXT.save();
 
     CONTEXT.translate(this.coordinates.x, this.coordinates.y);
@@ -34,8 +34,6 @@ class Player {
 
     CONTEXT.shadowColor = "rgba(179, 201, 198, 1)"; // Pale turquoise of some sort
     CONTEXT.shadowBlur = 5; // Blur effect
-    CONTEXT.shadowOffsetX = 0; // Horizontal distance
-    CONTEXT.shadowOffsetY = 0; // Vertical distance
 
     CONTEXT.strokeStyle = "white";
     CONTEXT.stroke();
@@ -56,7 +54,36 @@ class Player {
   }
 
   updatePlayer() {
-    this.show();
+    this.drawPlayer();
+    this.coordinates.x += this.velocity.x;
+    this.coordinates.y += this.velocity.y;
+  }
+}
+
+class Projectile {
+  constructor({ coordinates, velocity }) {
+    this.coordinates = coordinates;
+    this.velocity = velocity;
+    this.radius = 2.25;
+  }
+
+  drawProjectile() {
+    CONTEXT.beginPath();
+    CONTEXT.arc(
+      this.coordinates.x,
+      this.coordinates.y,
+      this.radius,
+      0,
+      Math.PI * 2,
+      false
+    );
+    CONTEXT.closePath();
+    CONTEXT.fillStyle = "#eeeeee";
+    CONTEXT.fill();
+  }
+
+  updateProjectile() {
+    this.drawProjectile();
     this.coordinates.x += this.velocity.x;
     this.coordinates.y += this.velocity.y;
   }
@@ -69,6 +96,10 @@ const player = new Player({
 ///// End of Player Setup /////
 
 ///// Movement & Controls /////
+const MOVEMENT_SPEED = 5;
+const ROTATION_SPEED = 0.1;
+const DECELERATION_RATE = 0.94;
+const PROJECTILES = [];
 const KEYPRESS = {
   w_key: {
     pressed: false,
@@ -84,10 +115,6 @@ const KEYPRESS = {
   },
 };
 
-const MOVEMENT_SPEED = 5;
-const ROTATION_SPEED = 0.1
-const DECELERATION_RATE = 0.94
-
 function movement() {
   const angle = player.rotation - Math.PI / 2;
 
@@ -96,26 +123,27 @@ function movement() {
   window.requestAnimationFrame(movement);
 
   player.updatePlayer();
-//   player.velocity.x = 0;
-//   player.velocity.y = 0;
+
+  for (let i = PROJECTILES.length - 1; i >= 0; i--) {
+    const projectile = PROJECTILES[i];
+    projectile.updateProjectile();
+  }
+
   if (KEYPRESS.w_key.pressed) {
     player.velocity.y = Math.cos(angle) * MOVEMENT_SPEED;
     player.velocity.x = -Math.sin(angle) * MOVEMENT_SPEED;
-    createParticle(player.coordinates.x, player.coordinates.y); // Create a particle at ship's position
   } else if (KEYPRESS.a_key.pressed) {
     player.rotation -= ROTATION_SPEED;
   } else if (KEYPRESS.s_key.pressed) {
     player.velocity.y = -Math.cos(angle) * MOVEMENT_SPEED;
     player.velocity.x = Math.sin(angle) * MOVEMENT_SPEED;
-    createParticle(player.coordinates.x - Math.sin(angle) * 10, player.coordinates.y + Math.cos(angle) * 10); // Create a particle at bottom left
-    createParticle(player.coordinates.x + Math.sin(angle) * 10, player.coordinates.y - Math.cos(angle) * 10); // Create a particle at bottom right
   } else if (KEYPRESS.d_key.pressed) {
     player.rotation += ROTATION_SPEED;
-  } 
-  
+  }
+
   if (!KEYPRESS.w_key.pressed) {
-    player.velocity.x *= DECELERATION_RATE
-    player.velocity.y *= DECELERATION_RATE
+    player.velocity.x *= DECELERATION_RATE;
+    player.velocity.y *= DECELERATION_RATE;
   }
 
   // Boundary Checking
@@ -165,5 +193,22 @@ window.addEventListener("keyup", (e) => {
     case "KeyD":
       KEYPRESS.d_key.pressed = false;
       break;
+  }
+});
+
+window.addEventListener("mousedown", (e) => {
+  if (e.button === 0) {
+    PROJECTILES.push(
+      new Projectile({
+        coordinates: {
+          x: player.coordinates.x + 30,
+          y: player.coordinates.y,
+        },
+        velocity: {
+          x: 10,
+          y: 0,
+        },
+      })
+    );
   }
 });
