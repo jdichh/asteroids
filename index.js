@@ -17,10 +17,12 @@ class Player {
   drawPlayer() {
     CONTEXT.save();
 
+    // Enables ship to rotate freely.
     CONTEXT.translate(this.coordinates.x, this.coordinates.y);
     CONTEXT.rotate(this.rotation);
     CONTEXT.translate(-this.coordinates.x, -this.coordinates.y);
 
+    // Spaceship shape.
     CONTEXT.beginPath();
     CONTEXT.moveTo(this.coordinates.x + 30, this.coordinates.y); // Top of the spaceship
     CONTEXT.lineTo(this.coordinates.x - 5, this.coordinates.y - 15); // Bottom left
@@ -49,7 +51,7 @@ class Projectile {
     this.coordinates = coordinates;
     this.velocity = velocity;
     this.radius = 2;
-    this.maxDistance = 875; // Maximum distance the projectile can travel
+    this.maxDistance = 900; // Maximum distance the projectile can travel
     this.distanceTraveled = 0; // Distance traveled by the projectile
   }
 
@@ -85,7 +87,7 @@ class Projectile {
       return;
     }
 
-    // Enables projectile to "wrap around" the canvas.
+    // Enables projectiles to "wrap around" the canvas.
     if (this.coordinates.x < 0) {
       this.coordinates.x = CANVAS.width;
     } else if (this.coordinates.x > CANVAS.width) {
@@ -105,15 +107,108 @@ const player = new Player({
   velocity: { x: 0, y: 0 },
 });
 ///// End of Player Setup /////
+
+///// Asteroid Spawning /////
+class Asteroid {
+  constructor({ coordinates, velocity }) {
+    this.coordinates = coordinates;
+    this.velocity = velocity;
+    this.radius = 50 * Math.random() + 15;
+    this.numPoints = Math.floor(Math.random() * 4) + 5; // Random number of points for the asteroid shape.
+  }
+
+  drawAsteroid() {
+    CONTEXT.beginPath();
+    CONTEXT.moveTo(
+      this.coordinates.x + this.radius * Math.cos(0),
+      this.coordinates.y + this.radius * Math.sin(0)
+    );
+
+    for (let i = 1; i <= this.numPoints; i++) {
+      const angle = (Math.PI * 2 * i) / this.numPoints;
+      const x = this.coordinates.x + this.radius * Math.cos(angle);
+      const y = this.coordinates.y + this.radius * Math.sin(angle);
+      CONTEXT.lineTo(x, y);
+    }
+
+    CONTEXT.closePath();
+    CONTEXT.strokeStyle = "#eeeeee";
+    CONTEXT.stroke();
+  }
+
+  updateAsteroid() {
+    this.drawAsteroid();
+    this.coordinates.x += this.velocity.x;
+    this.coordinates.y += this.velocity.y;
+
+    // Enables asteroids to "wrap around" the canvas.
+    if (this.coordinates.x < 0) {
+      this.coordinates.x = CANVAS.width;
+    } else if (this.coordinates.x > CANVAS.width) {
+      this.coordinates.x = 0;
+    }
+
+    if (this.coordinates.y < 0) {
+      this.coordinates.y = CANVAS.height;
+    } else if (this.coordinates.y > CANVAS.height) {
+      this.coordinates.y = 0;
+    }
+  }
+}
+
+const ASTEROIDS = [];
+const MAX_ASTEROIDS = 35; // Maximum number of asteroids allowed on screen.
+
+setInterval(() => {
+  if (ASTEROIDS.length < MAX_ASTEROIDS) {
+    const randomX = Math.random() < 0.5 ? -50 : CANVAS.width + 50;
+    const randomY = Math.random() < 0.5 ? -50 : CANVAS.height + 50;
+    const randomVelocityX = (Math.random() - 0.5) * 8;
+    const randomVelocityY = (Math.random() - 0.5) * 8;
+
+    ASTEROIDS.push(
+      new Asteroid({
+        coordinates: { x: randomX, y: randomY },
+        velocity: { x: randomVelocityX, y: randomVelocityY },
+      })
+    );
+  }
+  console.log(ASTEROIDS);
+}, 2000);
+
+function updateAsteroids() {
+  for (let i = ASTEROIDS.length - 1; i >= 0; i--) {
+    const asteroid = ASTEROIDS[i];
+    asteroid.updateAsteroid();
+    // Remove the asteroid if it's out of bounds (Garbage collector).
+    if (
+      asteroid.coordinates.x < 0 ||
+      asteroid.coordinates.x > CANVAS.width ||
+      asteroid.coordinates.y < 0 ||
+      asteroid.coordinates.y > CANVAS.height
+    ) {
+      ASTEROIDS.splice(i, 1);
+    }
+  }
+}
+
+function drawAsteroids() {
+  for (const asteroid of ASTEROIDS) {
+    asteroid.drawAsteroid();
+  }
+}
+///// End of Asteroid Spawning /////
+
 ///// Sound Effects /////
 const FIRE_SOUND = new Audio("./assets/sounds/fire.wav");
+///// End of Sound Effects /////
 
-///// Movement & Controls /////
-const MOVEMENT_SPEED = 10.5;
-const ROTATION_SPEED = 0.1;
+///// Main /////
+const MOVEMENT_SPEED = 10;
+const ROTATION_SPEED = 0.125;
 const DECELERATION_RATE = 0.96;
 const PROJECTILES = [];
-const PROJECTILE_SPEED = 20;
+const PROJECTILE_SPEED = 18;
 const KEYPRESS = {
   w_key: {
     pressed: false,
@@ -129,20 +224,25 @@ const KEYPRESS = {
   },
 };
 
-function movement() {
+function mainGame() {
   const angle = player.rotation - Math.PI / 2;
 
   CONTEXT.fillStyle = "black";
   CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
-  window.requestAnimationFrame(movement);
 
+  window.requestAnimationFrame(mainGame);
   player.updatePlayer();
-
+  
+  // Asteroid spawning & maintenance.
+  updateAsteroids();
+  drawAsteroids();
+  
   for (let i = PROJECTILES.length - 1; i >= 0; i--) {
-    const projectile = PROJECTILES[i];
-    projectile.updateProjectile();
+    const PROJECTILE = PROJECTILES[i];
+    PROJECTILE.updateProjectile();
   }
 
+  // Garbage collector for projectiles.
   if (PROJECTILES.distanceTraveled >= PROJECTILES.maxDistance) {
     PROJECTILES.splice(i, 1);
   }
@@ -178,7 +278,7 @@ function movement() {
   }
 }
 
-movement();
+mainGame();
 
 window.addEventListener("keydown", (e) => {
   switch (e.code) {
