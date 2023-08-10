@@ -34,18 +34,6 @@ class Player {
     CONTEXT.strokeStyle = "white";
     CONTEXT.stroke();
 
-    // just checking the center position
-    // CONTEXT.arc(
-    //   this.coordinates.x,
-    //   this.coordinates.y,
-    //   5,
-    //   0,
-    //   Math.PI * 2,
-    //   false
-    // );
-    // CONTEXT.fillStyle = "yellow";
-    // CONTEXT.fill();
-
     CONTEXT.restore();
   }
 
@@ -117,10 +105,6 @@ const player = new Player({
   velocity: { x: 0, y: 0 },
 });
 ///// End of Player Setup /////
-
-///// Music /////
-const MUSIC = new Audio();
-
 ///// Sound Effects /////
 const FIRE_SOUND = new Audio("./assets/sounds/fire.wav");
 
@@ -210,20 +194,6 @@ window.addEventListener("keydown", (e) => {
     case "KeyD":
       KEYPRESS.d_key.pressed = true;
       break;
-    // case "Space":
-    //   PROJECTILES.push(
-    //     new Projectile({
-    //       coordinates: {
-    //         x: player.coordinates.x + 30,
-    //         y: player.coordinates.y,
-    //       },
-    //       velocity: {
-    //         x: 10,
-    //         y: 0,
-    //       },
-    //     })
-    //   );
-    //   break;
   }
 });
 
