@@ -95,6 +95,12 @@ const player = new Player({
 });
 ///// End of Player Setup /////
 
+///// Music /////
+const MUSIC = new Audio()
+
+///// Sound Effects /////
+const FIRE_SOUND = new Audio('./assets/sounds/fire.wav');
+
 ///// Movement & Controls /////
 const MOVEMENT_SPEED = 5;
 const ROTATION_SPEED = 0.1;
@@ -176,6 +182,20 @@ window.addEventListener("keydown", (e) => {
     case "KeyD":
       KEYPRESS.d_key.pressed = true;
       break;
+    // case "Space":
+    //   PROJECTILES.push(
+    //     new Projectile({
+    //       coordinates: {
+    //         x: player.coordinates.x + 30,
+    //         y: player.coordinates.y,
+    //       },
+    //       velocity: {
+    //         x: 10,
+    //         y: 0,
+    //       },
+    //     })
+    //   );
+    //   break;
   }
 });
 
@@ -198,6 +218,9 @@ window.addEventListener("keyup", (e) => {
 
 window.addEventListener("mousedown", (e) => {
   if (e.button === 0) {
+    FIRE_SOUND.play()
+    FIRE_SOUND.currentTime = 0;
+    FIRE_SOUND.volume = 0.1;
     PROJECTILES.push(
       new Projectile({
         coordinates: {
