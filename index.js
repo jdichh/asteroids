@@ -6,7 +6,7 @@ CANVAS.width = window.innerWidth;
 CANVAS.height = window.innerHeight;
 ///// End of Canvas Setup /////
 
-///// Player Setup /////
+///// Class Setup /////
 class Player {
   constructor({ coordinates, velocity }) {
     this.coordinates = coordinates;
@@ -33,8 +33,8 @@ class Player {
     CONTEXT.shadowColor = "rgba(179, 201, 198, 1)"; // Pale turquoise of some sort
     CONTEXT.shadowBlur = 5; // Blur effect
 
-    CONTEXT.strokeStyle = "white";
-    CONTEXT.stroke();
+    CONTEXT.fillStyle = "#dadada";
+    CONTEXT.fill();
 
     CONTEXT.restore();
   }
@@ -51,7 +51,7 @@ class Projectile {
     this.coordinates = coordinates;
     this.velocity = velocity;
     this.radius = 2;
-    this.maxDistance = 900; // Maximum distance the projectile can travel
+    this.maxDistance = 700; // Maximum distance the projectile can travel
     this.distanceTraveled = 0; // Distance traveled by the projectile
   }
 
@@ -106,14 +106,14 @@ const player = new Player({
   coordinates: { x: CANVAS.width / 2, y: CANVAS.height / 2 },
   velocity: { x: 0, y: 0 },
 });
-///// End of Player Setup /////
+///// End of Class Setup /////
 
 ///// Asteroid Spawning /////
 class Asteroid {
   constructor({ coordinates, velocity }) {
     this.coordinates = coordinates;
     this.velocity = velocity;
-    this.radius = 50 * Math.random() + 15;
+    this.radius = 60 * Math.random() + 15;
     this.numPoints = Math.floor(Math.random() * 4) + 5; // Random number of points for the asteroid shape.
   }
 
@@ -157,14 +157,14 @@ class Asteroid {
 }
 
 const ASTEROIDS = [];
-const MAX_ASTEROIDS = 35; // Maximum number of asteroids allowed on screen.
+const MAX_ASTEROIDS = 50; // Maximum number of asteroids allowed on screen.
 
 setInterval(() => {
   if (ASTEROIDS.length < MAX_ASTEROIDS) {
     const randomX = Math.random() < 0.5 ? -50 : CANVAS.width + 50;
     const randomY = Math.random() < 0.5 ? -50 : CANVAS.height + 50;
-    const randomVelocityX = (Math.random() - 0.5) * 8;
-    const randomVelocityY = (Math.random() - 0.5) * 8;
+    const randomVelocityX = (Math.random() - 0.5) * 8.75;
+    const randomVelocityY = (Math.random() - 0.5) * 8.75;
 
     ASTEROIDS.push(
       new Asteroid({
@@ -174,7 +174,7 @@ setInterval(() => {
     );
   }
   console.log(ASTEROIDS);
-}, 2000);
+}, 700);
 
 function updateAsteroids() {
   for (let i = ASTEROIDS.length - 1; i >= 0; i--) {
@@ -204,10 +204,11 @@ const FIRE_SOUND = new Audio("./assets/sounds/fire.wav");
 ///// End of Sound Effects /////
 
 ///// Main /////
-const MOVEMENT_SPEED = 10;
+const MOVEMENT_SPEED = 7;
 const ROTATION_SPEED = 0.125;
 const DECELERATION_RATE = 0.96;
 const PROJECTILES = [];
+const EXPLOSIONS = [];
 const PROJECTILE_SPEED = 18;
 const KEYPRESS = {
   w_key: {
@@ -232,11 +233,11 @@ function mainGame() {
 
   window.requestAnimationFrame(mainGame);
   player.updatePlayer();
-  
+
   // Asteroid spawning & maintenance.
   updateAsteroids();
   drawAsteroids();
-  
+
   for (let i = PROJECTILES.length - 1; i >= 0; i--) {
     const PROJECTILE = PROJECTILES[i];
     PROJECTILE.updateProjectile();
@@ -293,6 +294,23 @@ window.addEventListener("keydown", (e) => {
       break;
     case "KeyD":
       KEYPRESS.d_key.pressed = true;
+      break;
+    case "Space":
+      FIRE_SOUND.play();
+      FIRE_SOUND.currentTime = 0;
+      FIRE_SOUND.volume = 0.1;
+      PROJECTILES.push(
+        new Projectile({
+          coordinates: {
+            x: player.coordinates.x + Math.cos(player.rotation) * 45,
+            y: player.coordinates.y + Math.sin(player.rotation) * 45,
+          },
+          velocity: {
+            x: Math.cos(player.rotation) * PROJECTILE_SPEED,
+            y: Math.sin(player.rotation) * PROJECTILE_SPEED,
+          },
+        })
+      );
       break;
   }
 });
