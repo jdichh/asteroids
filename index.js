@@ -15,21 +15,21 @@ class Player {
   constructor({ coordinates, velocity }) {
     this.coordinates = coordinates;
     this.velocity = velocity;
-    this.rotation = 0
+    this.rotation = 0;
   }
 
   show() {
-    CONTEXT.save()
+    CONTEXT.save();
 
     CONTEXT.translate(this.coordinates.x, this.coordinates.y);
-    CONTEXT.rotate(this.rotation)
+    CONTEXT.rotate(this.rotation);
     CONTEXT.translate(-this.coordinates.x, -this.coordinates.y);
 
     CONTEXT.beginPath();
-    CONTEXT.moveTo(this.coordinates.x, this.coordinates.y - 25); // Top of the spaceship
-    CONTEXT.lineTo(this.coordinates.x - 15, this.coordinates.y + 10); // Bottom left
-    CONTEXT.lineTo(this.coordinates.x, this.coordinates.y); // Middle bottom
-    CONTEXT.lineTo(this.coordinates.x + 15, this.coordinates.y + 10); // Bottom right
+    CONTEXT.moveTo(this.coordinates.x + 30, this.coordinates.y); // Top of the spaceship
+    CONTEXT.lineTo(this.coordinates.x - 5, this.coordinates.y - 15); // Bottom left
+    CONTEXT.lineTo(this.coordinates.x + 5, this.coordinates.y); // Middle bottom
+    CONTEXT.lineTo(this.coordinates.x - 5, this.coordinates.y + 15); // Bottom right
     CONTEXT.closePath();
 
     CONTEXT.shadowColor = "rgba(179, 201, 198, 1)"; // Pale turquoise of some sort
@@ -41,11 +41,18 @@ class Player {
     CONTEXT.stroke();
 
     // just checking the center position
-    // CONTEXT.arc(this.coordinates.x, this.coordinates.y, 5, 0, Math.PI * 2, false)
-    // CONTEXT.fillStyle = 'yellow'
-    // CONTEXT.fill()
+    // CONTEXT.arc(
+    //   this.coordinates.x,
+    //   this.coordinates.y,
+    //   5,
+    //   0,
+    //   Math.PI * 2,
+    //   false
+    // );
+    // CONTEXT.fillStyle = "yellow";
+    // CONTEXT.fill();
 
-    CONTEXT.restore()
+    CONTEXT.restore();
   }
 
   updatePlayer() {
@@ -77,23 +84,30 @@ const KEYPRESS = {
   },
 };
 
+const MOVEMENT_SPEED = 5;
+const ROTATION_SPEED = 0.1
+
 function movement() {
+  const angle = player.rotation - Math.PI / 2;
+
   CONTEXT.fillStyle = gradient;
   CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
   window.requestAnimationFrame(movement);
 
   player.updatePlayer();
-  player.velocity.x = 0
-  player.velocity.y = 0
+  player.velocity.x = 0;
+  player.velocity.y = 0;
 
   if (KEYPRESS.w_key.pressed) {
-    player.velocity.y = -5;
+    player.velocity.y = Math.cos(angle) * MOVEMENT_SPEED;
+    player.velocity.x = -Math.sin(angle) * MOVEMENT_SPEED;
   } else if (KEYPRESS.a_key.pressed) {
-    player.rotation -= 0.05;
+    player.rotation -= ROTATION_SPEED;
   } else if (KEYPRESS.s_key.pressed) {
-    player.velocity.y = 5;
+    player.velocity.y = -Math.cos(angle) * MOVEMENT_SPEED;
+    player.velocity.x = Math.sin(angle) * MOVEMENT_SPEED;
   } else if (KEYPRESS.d_key.pressed) {
-    player.rotation += 0.05;
+    player.rotation += ROTATION_SPEED;
   }
 }
 
@@ -117,18 +131,18 @@ window.addEventListener("keydown", (e) => {
 });
 
 window.addEventListener("keyup", (e) => {
-    switch (e.code) {
-      case "KeyW":
-        KEYPRESS.w_key.pressed = false;
-        break;
-      case "KeyA":
-        KEYPRESS.a_key.pressed = false;
-        break;
-      case "KeyS":
-        KEYPRESS.s_key.pressed = false;
-        break;
-      case "KeyD":
-        KEYPRESS.d_key.pressed = false;
-        break;
-    }
-  });
+  switch (e.code) {
+    case "KeyW":
+      KEYPRESS.w_key.pressed = false;
+      break;
+    case "KeyA":
+      KEYPRESS.a_key.pressed = false;
+      break;
+    case "KeyS":
+      KEYPRESS.s_key.pressed = false;
+      break;
+    case "KeyD":
+      KEYPRESS.d_key.pressed = false;
+      break;
+  }
+});
