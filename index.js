@@ -86,6 +86,7 @@ const KEYPRESS = {
 
 const MOVEMENT_SPEED = 5;
 const ROTATION_SPEED = 0.1
+const DECELERATION_RATE = 0.94
 
 function movement() {
   const angle = player.rotation - Math.PI / 2;
@@ -95,19 +96,39 @@ function movement() {
   window.requestAnimationFrame(movement);
 
   player.updatePlayer();
-  player.velocity.x = 0;
-  player.velocity.y = 0;
-
+//   player.velocity.x = 0;
+//   player.velocity.y = 0;
   if (KEYPRESS.w_key.pressed) {
     player.velocity.y = Math.cos(angle) * MOVEMENT_SPEED;
     player.velocity.x = -Math.sin(angle) * MOVEMENT_SPEED;
+    createParticle(player.coordinates.x, player.coordinates.y); // Create a particle at ship's position
   } else if (KEYPRESS.a_key.pressed) {
     player.rotation -= ROTATION_SPEED;
   } else if (KEYPRESS.s_key.pressed) {
     player.velocity.y = -Math.cos(angle) * MOVEMENT_SPEED;
     player.velocity.x = Math.sin(angle) * MOVEMENT_SPEED;
+    createParticle(player.coordinates.x - Math.sin(angle) * 10, player.coordinates.y + Math.cos(angle) * 10); // Create a particle at bottom left
+    createParticle(player.coordinates.x + Math.sin(angle) * 10, player.coordinates.y - Math.cos(angle) * 10); // Create a particle at bottom right
   } else if (KEYPRESS.d_key.pressed) {
     player.rotation += ROTATION_SPEED;
+  } 
+  
+  if (!KEYPRESS.w_key.pressed) {
+    player.velocity.x *= DECELERATION_RATE
+    player.velocity.y *= DECELERATION_RATE
+  }
+
+  // Boundary Checking
+  if (player.coordinates.x < 0) {
+    player.coordinates.x = 0;
+  } else if (player.coordinates.x > CANVAS.width) {
+    player.coordinates.x = CANVAS.width;
+  }
+
+  if (player.coordinates.y < 0) {
+    player.coordinates.y = 0;
+  } else if (player.coordinates.y > CANVAS.height) {
+    player.coordinates.y = CANVAS.height;
   }
 }
 
