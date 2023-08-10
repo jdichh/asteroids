@@ -4,10 +4,6 @@ const CONTEXT = CANVAS.getContext("2d");
 
 CANVAS.width = window.innerWidth;
 CANVAS.height = window.innerHeight;
-
-var gradient = CONTEXT.createLinearGradient(0, 0, CANVAS.width, CANVAS.height);
-gradient.addColorStop(0, "#0F212A");
-gradient.addColorStop(0.99, "#050D0D");
 ///// End of Canvas Setup /////
 
 ///// Player Setup /////
@@ -65,6 +61,8 @@ class Projectile {
     this.coordinates = coordinates;
     this.velocity = velocity;
     this.radius = 2;
+    this.maxDistance = 875; // Maximum distance the projectile can travel
+    this.distanceTraveled = 0; // Distance traveled by the projectile
   }
 
   drawProjectile() {
@@ -86,6 +84,18 @@ class Projectile {
     this.drawProjectile();
     this.coordinates.x += this.velocity.x;
     this.coordinates.y += this.velocity.y;
+    this.distanceTraveled += Math.sqrt(
+      this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y
+    );
+
+    // Checks if the projectile has exceeded the maximum distance.
+    if (this.distanceTraveled >= this.maxDistance) {
+      const index = PROJECTILES.indexOf(this);
+      if (index !== -1) {
+        PROJECTILES.splice(index, 1);
+      }
+      return;
+    }
 
     // Enables projectile to "wrap around" the canvas.
     if (this.coordinates.x < 0) {
@@ -115,7 +125,7 @@ const MUSIC = new Audio();
 const FIRE_SOUND = new Audio("./assets/sounds/fire.wav");
 
 ///// Movement & Controls /////
-const MOVEMENT_SPEED = 11.5;
+const MOVEMENT_SPEED = 10.5;
 const ROTATION_SPEED = 0.1;
 const DECELERATION_RATE = 0.96;
 const PROJECTILES = [];
@@ -138,7 +148,7 @@ const KEYPRESS = {
 function movement() {
   const angle = player.rotation - Math.PI / 2;
 
-  CONTEXT.fillStyle = gradient;
+  CONTEXT.fillStyle = "black";
   CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
   window.requestAnimationFrame(movement);
 
@@ -147,6 +157,10 @@ function movement() {
   for (let i = PROJECTILES.length - 1; i >= 0; i--) {
     const projectile = PROJECTILES[i];
     projectile.updateProjectile();
+  }
+
+  if (PROJECTILES.distanceTraveled >= PROJECTILES.maxDistance) {
+    PROJECTILES.splice(i, 1);
   }
 
   if (KEYPRESS.w_key.pressed) {
