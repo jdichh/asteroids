@@ -57,6 +57,15 @@ const KEYPRESS = {
   w_key: {
     pressed: false,
   },
+  a_key: {
+    pressed: false,
+  },
+  s_key: {
+    pressed: false,
+  },
+  d_key: {
+    pressed: false,
+  },
 };
 
 function movement() {
@@ -64,8 +73,16 @@ function movement() {
   CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
   window.requestAnimationFrame(movement);
   player.updatePlayer();
-  
-  if (KEYPRESS.w_key.pressed) player.velocity.y = -1;
+
+  if (KEYPRESS.w_key.pressed) {
+    player.velocity.y = -1;
+  } else if (KEYPRESS.a_key.pressed) {
+    player.velocity.x = -1;
+  } else if (KEYPRESS.s_key.pressed) {
+    player.velocity.y = 1;
+  } else if (KEYPRESS.d_key.pressed) {
+    player.velocity.x = 1;
+  }
 }
 
 movement();
@@ -76,13 +93,13 @@ window.addEventListener("keydown", (e) => {
       KEYPRESS.w_key.pressed = true;
       break;
     case "KeyA":
-      alert("A key.");
+      KEYPRESS.a_key.pressed = true;
       break;
     case "KeyS":
-      alert("S key.");
+      KEYPRESS.s_key.pressed = true;
       break;
     case "KeyD":
-      alert("D key.");
+      KEYPRESS.d_key.pressed = true;
       break;
   }
 });
