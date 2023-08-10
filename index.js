@@ -64,7 +64,7 @@ class Projectile {
   constructor({ coordinates, velocity }) {
     this.coordinates = coordinates;
     this.velocity = velocity;
-    this.radius = 2.25;
+    this.radius = 2;
   }
 
   drawProjectile() {
@@ -86,6 +86,19 @@ class Projectile {
     this.drawProjectile();
     this.coordinates.x += this.velocity.x;
     this.coordinates.y += this.velocity.y;
+
+    // Enables projectile to "wrap around" the canvas.
+    if (this.coordinates.x < 0) {
+      this.coordinates.x = CANVAS.width;
+    } else if (this.coordinates.x > CANVAS.width) {
+      this.coordinates.x = 0;
+    }
+
+    if (this.coordinates.y < 0) {
+      this.coordinates.y = CANVAS.height;
+    } else if (this.coordinates.y > CANVAS.height) {
+      this.coordinates.y = 0;
+    }
   }
 }
 
@@ -96,16 +109,17 @@ const player = new Player({
 ///// End of Player Setup /////
 
 ///// Music /////
-const MUSIC = new Audio()
+const MUSIC = new Audio();
 
 ///// Sound Effects /////
-const FIRE_SOUND = new Audio('./assets/sounds/fire.wav');
+const FIRE_SOUND = new Audio("./assets/sounds/fire.wav");
 
 ///// Movement & Controls /////
-const MOVEMENT_SPEED = 5;
+const MOVEMENT_SPEED = 11.5;
 const ROTATION_SPEED = 0.1;
-const DECELERATION_RATE = 0.94;
+const DECELERATION_RATE = 0.96;
 const PROJECTILES = [];
+const PROJECTILE_SPEED = 20;
 const KEYPRESS = {
   w_key: {
     pressed: false,
@@ -152,17 +166,17 @@ function movement() {
     player.velocity.y *= DECELERATION_RATE;
   }
 
-  // Boundary Checking
+  // Enables the spaceship to "wrap around" the canvas.
   if (player.coordinates.x < 0) {
-    player.coordinates.x = 0;
-  } else if (player.coordinates.x > CANVAS.width) {
     player.coordinates.x = CANVAS.width;
+  } else if (player.coordinates.x > CANVAS.width) {
+    player.coordinates.x = 0;
   }
 
   if (player.coordinates.y < 0) {
-    player.coordinates.y = 0;
-  } else if (player.coordinates.y > CANVAS.height) {
     player.coordinates.y = CANVAS.height;
+  } else if (player.coordinates.y > CANVAS.height) {
+    player.coordinates.y = 0;
   }
 }
 
@@ -218,18 +232,18 @@ window.addEventListener("keyup", (e) => {
 
 window.addEventListener("mousedown", (e) => {
   if (e.button === 0) {
-    FIRE_SOUND.play()
+    FIRE_SOUND.play();
     FIRE_SOUND.currentTime = 0;
     FIRE_SOUND.volume = 0.1;
     PROJECTILES.push(
       new Projectile({
         coordinates: {
-          x: player.coordinates.x + 30,
-          y: player.coordinates.y,
+          x: player.coordinates.x + Math.cos(player.rotation) * 45,
+          y: player.coordinates.y + Math.sin(player.rotation) * 45,
         },
         velocity: {
-          x: 10,
-          y: 0,
+          x: Math.cos(player.rotation) * PROJECTILE_SPEED,
+          y: Math.sin(player.rotation) * PROJECTILE_SPEED,
         },
       })
     );
