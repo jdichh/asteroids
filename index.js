@@ -1,4 +1,5 @@
 let gameOver = false;
+let gameStarted = false;
 
 ///// Canvas Setup /////
 const CANVAS = document.getElementById("canvas");
@@ -72,7 +73,7 @@ class Projectile {
   constructor({ coordinates, velocity }) {
     this.coordinates = coordinates;
     this.velocity = velocity;
-    this.radius = 2;
+    this.radius = 3;
     this.maxDistance = 700; // Maximum distance the projectile can travel
     this.distanceTraveled = 0; // Distance traveled by the projectile
   }
@@ -181,24 +182,26 @@ class Asteroid {
 const ASTEROIDS = [];
 const MAX_ASTEROIDS = 90; // Maximum number of asteroids allowed on screen.
 
-setInterval(() => {
-  if (ASTEROIDS.length < MAX_ASTEROIDS) {
-    // Spawn location of asteroids (outside of canvas bounds).
-    const randomX = Math.random() < 0.5 ? -50 : CANVAS.width + 50;
-    const randomY = Math.random() < 0.5 ? -50 : CANVAS.height + 50;
-    // Asteroid travel speed.
-    const randomVelocityX = (Math.random() - 0.6) * 14;
-    const randomVelocityY = (Math.random() - 0.6) * 14;
+if (!gameStarted && !gameOver){
+  setInterval(() => {
+    if (ASTEROIDS.length < MAX_ASTEROIDS) {
+      // Spawn location of asteroids (outside of canvas bounds).
+      const randomX = Math.random() < 0.5 ? -50 : CANVAS.width + 50;
+      const randomY = Math.random() < 0.5 ? -50 : CANVAS.height + 50;
+      // Asteroid travel speed.
+      const randomVelocityX = (Math.random() - 0.5) * 11;
+      const randomVelocityY = (Math.random() - 0.5) * 11;
 
-    ASTEROIDS.push(
-      new Asteroid({
-        coordinates: { x: randomX, y: randomY },
-        velocity: { x: randomVelocityX, y: randomVelocityY },
-      })
-    );
-  }
-  // Time in-between asteroid spawning.
-}, 400);
+      ASTEROIDS.push(
+        new Asteroid({
+          coordinates: { x: randomX, y: randomY },
+          velocity: { x: randomVelocityX, y: randomVelocityY },
+        })
+      );
+    }
+    // Time in-between asteroid spawning.
+  }, 400);
+}
 
 function updateAsteroids() {
   for (let i = ASTEROIDS.length - 1; i >= 0; i--) {
@@ -232,6 +235,66 @@ const FIRE_SOUND = new Audio("./assets/sounds/fire.wav");
 const ASTEROID_HIT = new Audio("./assets/sounds/bangMedium.wav");
 ///// End of Sound Effects /////
 
+//// Music /////
+const musicFiles = [
+  "./assets/music/music2.wav",
+  "./assets/music/music3.wav",
+  "./assets/music/music5.wav",
+];
+
+let currentMusicIndex = Math.floor(Math.random() * musicFiles.length);
+let MUSIC = new Audio(musicFiles[currentMusicIndex]);
+let isMusicPlaying = true;
+
+const musicToggleButton = document.createElement("button");
+musicToggleButton.setAttribute("id", "music-toggle-button");
+musicToggleButton.addEventListener("click", toggleMusic);
+
+const iconElement = document.createElement("i");
+iconElement.classList.add("fas");
+iconElement.classList.add("fa-stop");
+
+// Append the icon element to the button
+musicToggleButton.appendChild(iconElement);
+
+const volumeSlider = document.createElement("input");
+volumeSlider.setAttribute("id", "volume-slider");
+volumeSlider.setAttribute("type", "range");
+volumeSlider.setAttribute("min", "0");
+volumeSlider.setAttribute("max", "1");
+volumeSlider.setAttribute("step", "0.01");
+volumeSlider.setAttribute("value", "0.30");
+volumeSlider.addEventListener("input", updateVolume);
+
+CANVAS.parentNode.appendChild(musicToggleButton);
+CANVAS.parentNode.appendChild(volumeSlider);
+
+// Set the initial volume based on the slider value
+function updateVolume() {
+  const volume = parseFloat(volumeSlider.value);
+  MUSIC.volume = volume;
+}
+
+function toggleMusic() {
+  if (isMusicPlaying) {
+    MUSIC.loop = true;
+    MUSIC.play();
+    iconElement.classList.remove("fa-stop");
+    iconElement.classList.add("fa-play");
+    
+  } else {
+    MUSIC.currentTime = 0; // Rewind the track to the beginning
+    MUSIC.pause();
+    iconElement.classList.remove("fa-play");
+    iconElement.classList.add("fa-stop");
+    currentMusicIndex = Math.floor(Math.random() * musicFiles.length);
+    MUSIC = new Audio(musicFiles[currentMusicIndex]);
+  }
+  isMusicPlaying = !isMusicPlaying;
+  updateVolume();
+}
+///// End of Music /////
+
 ///// Hit Detection /////
 let score = 0;
 function detectCollisions() {
@@ -256,9 +319,9 @@ function detectCollisions() {
         const explosion = {
           coordinates: { x: ASTEROID.coordinates.x, y: ASTEROID.coordinates.y },
           particles: [],
-          maxParticles: 20,
+          maxParticles: 30,
           particleSpeed: 2,
-          particleRadius: 1,
+          particleRadius: 1.5,
           explosionDuration: 60, // Duration of the explosion in frames
           frameCount: 0,
         };
@@ -344,11 +407,11 @@ function drawFPS() {
 
 ///// Main Game Data /////
 const MOVEMENT_SPEED = 6.5;
-const ROTATION_SPEED = 0.125;
+const ROTATION_SPEED = 0.15;
 const DECELERATION_RATE = 0.94;
 const PROJECTILES = [];
 const EXPLOSIONS = [];
-const PROJECTILE_SPEED = 17;
+const PROJECTILE_SPEED = 17.5;
 const KEYPRESS = {
   w_key: {
     pressed: false,
@@ -378,14 +441,13 @@ function restartGame() {
   mainGame();
 }
 
-let gameStarted = false;
 let lastFrameTime = 0;
 const frameRate = 60;
 
 function startGame() {
   gameStarted = true;
   lastFrameTime = performance.now(); // Reset the last frame time.
-  requestAnimationFrame(mainGame); 
+  requestAnimationFrame(mainGame);
 }
 
 function mainGame(currentTime) {
@@ -403,10 +465,24 @@ function mainGame(currentTime) {
     CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
 
     CONTEXT.fillStyle = "white";
-    CONTEXT.font = "20px monospace";
-    CONTEXT.fillText("Press the left mouse button to start the game.", CANVAS.width / 2 - 225, CANVAS.height / 2 + 160);
+    CONTEXT.font = "14px monospace";
+    CONTEXT.fillText(
+      "Music",
+      CANVAS.width / 2 + 905,
+      CANVAS.height / 2 - 405
+    );
     CONTEXT.font = "200px monospace";
-    CONTEXT.fillText("ASTEROIDS", CANVAS.width / 2 - 450, CANVAS.height / 2 - 80);
+    CONTEXT.fillText(
+      "ASTEROIDS",
+      CANVAS.width / 2 - 450,
+      CANVAS.height / 2 - 80
+    );
+    CONTEXT.font = "20px monospace";
+    CONTEXT.fillText(
+      "Press the LEFT MOUSE BUTTON to start the game.",
+      CANVAS.width / 2 - 225,
+      CANVAS.height / 2 + 160
+    );
 
     CANVAS.addEventListener("click", startGame);
     return;
@@ -417,16 +493,34 @@ function mainGame(currentTime) {
     CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
 
     CONTEXT.fillStyle = "white";
+    CONTEXT.font = "14px monospace";
+    CONTEXT.fillText(
+      "Music",
+      CANVAS.width / 2 + 905,
+      CANVAS.height / 2 - 405
+    );
     CONTEXT.font = "30px monospace";
-    CONTEXT.fillText("You have been hit by an asteroid!", CANVAS.width / 2 - 275, CANVAS.height / 2 - 70);
-    CONTEXT.fillText(`Your score was ${score}.`, CANVAS.width / 2 - 150, CANVAS.height / 2 - 30);
+    CONTEXT.fillText(
+      "You have been hit by an asteroid!",
+      CANVAS.width / 2 - 275,
+      CANVAS.height / 2 - 70
+    );
+    CONTEXT.fillText(
+      `Your score was ${score}.`,
+      CANVAS.width / 2 - 150,
+      CANVAS.height / 2 - 30
+    );
     CONTEXT.font = "20px monospace";
-    CONTEXT.fillText("Press the left mouse button to play again.", CANVAS.width / 2 - 225, CANVAS.height / 2 + 80)
+    CONTEXT.fillText(
+      "NO MATTER! WE PRESS ON! PRESS THE LEFT MOUSE BUTTON!",
+      CANVAS.width / 2 - 290,
+      CANVAS.height / 2 + 80
+    );
 
     CANVAS.addEventListener("click", restartGame);
     return;
-  } 
-  
+  }
+
   const angle = player.rotation - Math.PI / 2;
 
   CONTEXT.fillStyle = "black";
@@ -445,11 +539,15 @@ function mainGame(currentTime) {
   // FPS COUNTER
   calculateFPS();
   drawFPS();
-
+  
   // Scoreboard
   CONTEXT.fillStyle = "white";
-  CONTEXT.font = "20px monospace";
-  CONTEXT.fillText(`SCORE: ${score}`, CANVAS.width / 2 - 37.5, CANVAS.height / 2 - 430);
+  CONTEXT.font = "16px monospace";
+  CONTEXT.fillText(
+    `SCORE: ${score}`,
+    CANVAS.width / 2 - 37.5,
+    25
+  );
 
   // Update and show explosions on projectile to asteroid impact.
   for (let i = EXPLOSIONS.length - 1; i >= 0; i--) {
@@ -554,7 +652,7 @@ mainGame();
 ///// End of Main Game Data /////
 
 ///// Controls /////
-function fireProjectile(){
+function fireProjectile() {
   FIRE_SOUND.play();
   FIRE_SOUND.currentTime = 0;
   FIRE_SOUND.volume = 0.1;
@@ -573,41 +671,45 @@ function fireProjectile(){
 }
 
 window.addEventListener("keydown", (e) => {
-  switch (e.code) {
-    case "KeyW":
-      KEYPRESS.w_key.pressed = true;
-      break;
-    case "KeyA":
-      KEYPRESS.a_key.pressed = true;
-      break;
-    case "KeyS":
-      KEYPRESS.s_key.pressed = true;
-      break;
-    case "KeyD":
-      KEYPRESS.d_key.pressed = true;
-      break;
+  if (gameStarted) {
+    switch (e.code) {
+      case "KeyW":
+        KEYPRESS.w_key.pressed = true;
+        break;
+      case "KeyA":
+        KEYPRESS.a_key.pressed = true;
+        break;
+      case "KeyS":
+        KEYPRESS.s_key.pressed = true;
+        break;
+      case "KeyD":
+        KEYPRESS.d_key.pressed = true;
+        break;
+    }
   }
 });
 
 window.addEventListener("keyup", (e) => {
-  switch (e.code) {
-    case "KeyW":
-      KEYPRESS.w_key.pressed = false;
-      break;
-    case "KeyA":
-      KEYPRESS.a_key.pressed = false;
-      break;
-    case "KeyS":
-      KEYPRESS.s_key.pressed = false;
-      break;
-    case "KeyD":
-      KEYPRESS.d_key.pressed = false;
-      break;
+  if (gameStarted) {
+    switch (e.code) {
+      case "KeyW":
+        KEYPRESS.w_key.pressed = false;
+        break;
+      case "KeyA":
+        KEYPRESS.a_key.pressed = false;
+        break;
+      case "KeyS":
+        KEYPRESS.s_key.pressed = false;
+        break;
+      case "KeyD":
+        KEYPRESS.d_key.pressed = false;
+        break;
+    }
   }
 });
 
 window.addEventListener("mousedown", (e) => {
-  if (e.button === 0) {
-    fireProjectile()
+  if (gameStarted && !gameOver && e.button === 0) {
+    fireProjectile();
   }
 });
