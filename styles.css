@@ -17,9 +17,9 @@ canvas {
 
 #music-toggle-button {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 10px 20px;
+  top: 1%;
+  right: 0.6%;
+  padding: 0.5% 1%;
   background: rgba(32,32,32, 0.5);
   cursor: pointer;
   color: white;
@@ -35,8 +35,9 @@ canvas {
 
 #volume-slider {
   position: absolute;
-  top: 27px;
-  right: 80px;
-  height: 2px;
+  top: 2.7%;
+  right: 4%;
+  height: 0.2%;
+  width: 6%;
   cursor: pointer;
 }

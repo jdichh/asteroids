@@ -273,11 +273,14 @@ volumeSlider.setAttribute("type", "range");
 volumeSlider.setAttribute("min", "0");
 volumeSlider.setAttribute("max", "1");
 volumeSlider.setAttribute("step", "0.01");
-volumeSlider.setAttribute("value", "0.30");
+volumeSlider.setAttribute("value", "0.1");
 volumeSlider.addEventListener("input", updateVolume);
 
 CANVAS.parentNode.appendChild(musicToggleButton);
 CANVAS.parentNode.appendChild(volumeSlider);
+
+// Default volume in case the user has autoplay enabled to prevent deafening.
+MUSIC.volume = 0.1;
 
 // Set the initial volume based on the slider value
 function updateVolume() {
@@ -287,21 +290,30 @@ function updateVolume() {
 
 function toggleMusic() {
   if (isMusicPlaying) {
-    MUSIC.loop = true;
     MUSIC.play();
     iconElement.classList.remove("fa-stop");
     iconElement.classList.add("fa-play");
   } else {
-    MUSIC.currentTime = 0; // Rewind the track to the beginning
     MUSIC.pause();
     iconElement.classList.remove("fa-play");
     iconElement.classList.add("fa-stop");
-    currentMusicIndex = Math.floor(Math.random() * musicFiles.length);
+    currentMusicIndex = (currentMusicIndex + 1) % musicFiles.length; // Move to the next track
     MUSIC = preloadedMusicFiles[currentMusicIndex];
+    MUSIC.play();
   }
   isMusicPlaying = !isMusicPlaying;
   updateVolume();
 }
+
+// Event listener for when the current song ends
+MUSIC.addEventListener("ended", () => {
+  currentMusicIndex = (currentMusicIndex + 1) % musicFiles.length; // Move to the next track
+  MUSIC = preloadedMusicFiles[currentMusicIndex];
+  toggleMusic();
+});
+
+// Start playing the initial song
+MUSIC.play();
 ///// End of Music /////
 
 ///// Hit Detection /////
@@ -415,12 +427,12 @@ function drawFPS() {
 ///// END OF FPS COUNTER /////
 
 ///// Main Game Data /////
-const MOVEMENT_SPEED = 6.5;
+const MOVEMENT_SPEED = 7;
 const ROTATION_SPEED = 0.085;
 const DECELERATION_RATE = 0.93;
 const PROJECTILES = [];
 const EXPLOSIONS = [];
-const PROJECTILE_SPEED = 18;
+const PROJECTILE_SPEED = 22.5;
 const KEYPRESS = {
   w_key: {
     pressed: false,
@@ -491,7 +503,7 @@ function mainGame(currentTime) {
       CANVAS.height / 2 + 125
     );
     CONTEXT.font = "14px monospace";
-    CONTEXT.fillText("Music", CANVAS.width / 2 + 906, CANVAS.height / 2 - 405);
+    CONTEXT.fillText("Music", CANVAS.width / 2 + 907, CANVAS.height / 2 - 405);
     CONTEXT.fillText(
       "Music by Karl Casey. (Royalty-Free)",
       CANVAS.width / 2 - 125,
@@ -535,7 +547,17 @@ function mainGame(currentTime) {
       CANVAS.width / 2 - 225,
       CANVAS.height / 2 + 160
     );
-
+    CONTEXT.font = "14px monospace";
+    CONTEXT.fillText(
+      "Music by Karl Casey. (Royalty-Free)",
+      CANVAS.width / 2 - 125,
+      CANVAS.height / 2 + 430
+    );
+    CONTEXT.fillText(
+      "karlcasey.bandcamp.com",
+      CANVAS.width / 2 - 75,
+      CANVAS.height / 2 + 450
+    );
     CANVAS.addEventListener("click", restartGame);
     return;
   }
