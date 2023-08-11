@@ -182,15 +182,15 @@ class Asteroid {
 const ASTEROIDS = [];
 const MAX_ASTEROIDS = 90; // Maximum number of asteroids allowed on screen.
 
-if (!gameStarted && !gameOver){
+if (!gameStarted) {
   setInterval(() => {
     if (ASTEROIDS.length < MAX_ASTEROIDS) {
       // Spawn location of asteroids (outside of canvas bounds).
       const randomX = Math.random() < 0.5 ? -50 : CANVAS.width + 50;
       const randomY = Math.random() < 0.5 ? -50 : CANVAS.height + 50;
       // Asteroid travel speed.
-      const randomVelocityX = (Math.random() - 0.5) * 11;
-      const randomVelocityY = (Math.random() - 0.5) * 11;
+      const randomVelocityX = (Math.random() - 0.45) * 11;
+      const randomVelocityY = (Math.random() - 0.45) * 11;
 
       ASTEROIDS.push(
         new Asteroid({
@@ -200,7 +200,7 @@ if (!gameStarted && !gameOver){
       );
     }
     // Time in-between asteroid spawning.
-  }, 400);
+  }, 500);
 }
 
 function updateAsteroids() {
@@ -241,6 +241,8 @@ const musicFiles = [
   "./assets/music/music2.mp3",
   "./assets/music/music3.mp3",
   "./assets/music/music4.mp3",
+  "./assets/music/music5.mp3",
+  "./assets/music/music6.mp3",
 ];
 
 const preloadedMusicFiles = musicFiles.map((musicFile) => {
@@ -248,7 +250,7 @@ const preloadedMusicFiles = musicFiles.map((musicFile) => {
   audio.src = musicFile;
   audio.preload = "auto";
   return audio;
-})
+});
 
 let currentMusicIndex = Math.floor(Math.random() * musicFiles.length);
 let MUSIC = preloadedMusicFiles[currentMusicIndex];
@@ -289,7 +291,6 @@ function toggleMusic() {
     MUSIC.play();
     iconElement.classList.remove("fa-stop");
     iconElement.classList.add("fa-play");
-    
   } else {
     MUSIC.currentTime = 0; // Rewind the track to the beginning
     MUSIC.pause();
@@ -474,11 +475,9 @@ function mainGame(currentTime) {
 
     CONTEXT.fillStyle = "white";
     CONTEXT.font = "14px monospace";
-    CONTEXT.fillText(
-      "Music",
-      CANVAS.width / 2 + 906,
-      CANVAS.height / 2 - 405
-    );
+    CONTEXT.fillText("Music", CANVAS.width / 2 + 906, CANVAS.height / 2 - 405);
+    CONTEXT.fillText("Music by Karl Casey. (Royalty-Free)", CANVAS.width / 2 - 125, CANVAS.height / 2 + 430);
+    CONTEXT.fillText("karlcasey.bandcamp.com", CANVAS.width / 2 - 75, CANVAS.height / 2 + 450);
     CONTEXT.font = "200px monospace";
     CONTEXT.fillText(
       "ASTEROIDS",
@@ -491,6 +490,11 @@ function mainGame(currentTime) {
       CANVAS.width / 2 - 225,
       CANVAS.height / 2 + 160
     );
+    CONTEXT.fillText(
+      "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right",
+      CANVAS.width / 2 - 350,
+      CANVAS.height / 2 + 125
+    );
     CANVAS.addEventListener("click", startGame);
     return;
   }
@@ -501,11 +505,7 @@ function mainGame(currentTime) {
 
     CONTEXT.fillStyle = "white";
     CONTEXT.font = "14px monospace";
-    CONTEXT.fillText(
-      "Music",
-      CANVAS.width / 2 + 905,
-      CANVAS.height / 2 - 405
-    );
+    CONTEXT.fillText("Music", CANVAS.width / 2 + 905, CANVAS.height / 2 - 405);
     CONTEXT.font = "30px monospace";
     CONTEXT.fillText(
       "You have been hit by an asteroid!",
@@ -519,16 +519,19 @@ function mainGame(currentTime) {
     );
     CONTEXT.font = "20px monospace";
     CONTEXT.fillText(
-      "NO MATTER! WE PRESS ON! PRESS THE LEFT MOUSE BUTTON!",
-      CANVAS.width / 2 - 290,
+      "Press the LEFT MOUSE BUTTON to play again.",
+      CANVAS.width / 2 - 225,
       CANVAS.height / 2 + 80
+    );
+    CONTEXT.fillText(
+      "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right",
+      CANVAS.width / 2 - 350,
+      CANVAS.height / 2 + 125
     );
 
     CANVAS.addEventListener("click", restartGame);
     return;
   }
-
-  const angle = player.rotation - Math.PI / 2;
 
   CONTEXT.fillStyle = "black";
   CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
@@ -537,8 +540,10 @@ function mainGame(currentTime) {
   player.updatePlayer();
 
   // Asteroid spawning & maintenance.
-  updateAsteroids();
-  drawAsteroids();
+  if (gameStarted) {
+    updateAsteroids();
+    drawAsteroids();
+  }
 
   // Projectile to asteroid hit detection.
   detectCollisions();
@@ -546,15 +551,44 @@ function mainGame(currentTime) {
   // FPS COUNTER
   calculateFPS();
   drawFPS();
-  
+
   // Scoreboard
   CONTEXT.fillStyle = "white";
   CONTEXT.font = "16px monospace";
-  CONTEXT.fillText(
-    `SCORE: ${score}`,
-    CANVAS.width / 2 - 37.5,
-    25
-  );
+  CONTEXT.fillText(`SCORE: ${score}`, CANVAS.width / 2 - 37.5, 25);
+
+  // Controls
+  const angle = player.rotation - Math.PI / 2;
+
+  if (KEYPRESS.w_key.pressed) {
+    player.velocity.y = Math.cos(angle) * MOVEMENT_SPEED;
+    player.velocity.x = -Math.sin(angle) * MOVEMENT_SPEED;
+  } else if (KEYPRESS.a_key.pressed) {
+    player.rotation -= ROTATION_SPEED;
+  } else if (KEYPRESS.s_key.pressed) {
+    player.velocity.y = -Math.cos(angle) * MOVEMENT_SPEED;
+    player.velocity.x = Math.sin(angle) * MOVEMENT_SPEED;
+  } else if (KEYPRESS.d_key.pressed) {
+    player.rotation += ROTATION_SPEED;
+  }
+
+  if (!KEYPRESS.w_key.pressed) {
+    player.velocity.x *= DECELERATION_RATE;
+    player.velocity.y *= DECELERATION_RATE;
+  }
+
+  // Enables the spaceship to "wrap around" the canvas.
+  if (player.coordinates.x < 0) {
+    player.coordinates.x = CANVAS.width;
+  } else if (player.coordinates.x > CANVAS.width) {
+    player.coordinates.x = 0;
+  }
+
+  if (player.coordinates.y < 0) {
+    player.coordinates.y = CANVAS.height;
+  } else if (player.coordinates.y > CANVAS.height) {
+    player.coordinates.y = 0;
+  }
 
   // Update and show explosions on projectile to asteroid impact.
   for (let i = EXPLOSIONS.length - 1; i >= 0; i--) {
@@ -622,36 +656,6 @@ function mainGame(currentTime) {
   // Garbage collector for projectiles.
   if (PROJECTILES.distanceTraveled >= PROJECTILES.maxDistance) {
     PROJECTILES.splice(i, 1);
-  }
-
-  if (KEYPRESS.w_key.pressed) {
-    player.velocity.y = Math.cos(angle) * MOVEMENT_SPEED;
-    player.velocity.x = -Math.sin(angle) * MOVEMENT_SPEED;
-  } else if (KEYPRESS.a_key.pressed) {
-    player.rotation -= ROTATION_SPEED;
-  } else if (KEYPRESS.s_key.pressed) {
-    player.velocity.y = -Math.cos(angle) * MOVEMENT_SPEED;
-    player.velocity.x = Math.sin(angle) * MOVEMENT_SPEED;
-  } else if (KEYPRESS.d_key.pressed) {
-    player.rotation += ROTATION_SPEED;
-  }
-
-  if (!KEYPRESS.w_key.pressed) {
-    player.velocity.x *= DECELERATION_RATE;
-    player.velocity.y *= DECELERATION_RATE;
-  }
-
-  // Enables the spaceship to "wrap around" the canvas.
-  if (player.coordinates.x < 0) {
-    player.coordinates.x = CANVAS.width;
-  } else if (player.coordinates.x > CANVAS.width) {
-    player.coordinates.x = 0;
-  }
-
-  if (player.coordinates.y < 0) {
-    player.coordinates.y = CANVAS.height;
-  } else if (player.coordinates.y > CANVAS.height) {
-    player.coordinates.y = 0;
   }
 }
 
