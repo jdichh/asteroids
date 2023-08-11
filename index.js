@@ -6,13 +6,14 @@ CANVAS.width = window.innerWidth;
 CANVAS.height = window.innerHeight;
 ///// End of Canvas Setup /////
 
+let gameOver = false;
+
 ///// Class Setup /////
 class Player {
-  constructor({ coordinates, velocity, radius }) {
+  constructor({ coordinates, velocity }) {
     this.coordinates = coordinates;
     this.velocity = velocity;
     this.rotation = 0;
-    this.radius = radius
   }
 
   drawPlayer() {
@@ -47,8 +48,8 @@ class Player {
   }
 
   getVertices() {
-    const cos = Math.cos(this.rotation)
-    const sin = Math.sin(this.rotation)
+    const cos = Math.cos(this.rotation);
+    const sin = Math.sin(this.rotation);
 
     return [
       {
@@ -63,7 +64,7 @@ class Player {
         x: this.coordinates.x + cos * -10 - sin * -10,
         y: this.coordinates.y + sin * -10 + cos * -10,
       },
-    ]
+    ];
   }
 }
 
@@ -126,7 +127,6 @@ class Projectile {
 const player = new Player({
   coordinates: { x: CANVAS.width / 2, y: CANVAS.height / 2 },
   velocity: { x: 0, y: 0 },
-  radius: 10,
 });
 ///// End of Class Setup /////
 
@@ -205,10 +205,9 @@ function updateAsteroids() {
     const asteroid = ASTEROIDS[i];
     asteroid.updateAsteroid();
 
-    if(circleTriangleCollision(asteroid, player.getVertices())){
-      console.log("over")
+    if (circleTriangleCollision(asteroid, player.getVertices())) {
+      gameOver = true;
     }
-
     // Remove the asteroid if it's out of bounds (Garbage collector).
     if (
       asteroid.coordinates.x < 0 ||
@@ -277,38 +276,38 @@ function detectCollisions() {
 function circleTriangleCollision(circle, triangle) {
   // Check if the circle is colliding with any of the triangle's edges
   for (let i = 0; i < 3; i++) {
-    let start = triangle[i]
-    let end = triangle[(i + 1) % 3]
+    let start = triangle[i];
+    let end = triangle[(i + 1) % 3];
 
-    let dx = end.x - start.x
-    let dy = end.y - start.y
-    let length = Math.sqrt(dx * dx + dy * dy)
+    let dx = end.x - start.x;
+    let dy = end.y - start.y;
+    let length = Math.sqrt(dx * dx + dy * dy);
 
     let dot =
       ((circle.coordinates.x - start.x) * dx +
         (circle.coordinates.y - start.y) * dy) /
-      Math.pow(length, 2)
+      Math.pow(length, 2);
 
-    let closestX = start.x + dot * dx
-    let closestY = start.y + dot * dy
+    let closestX = start.x + dot * dx;
+    let closestY = start.y + dot * dy;
 
     if (!isPointOnLineSegment(closestX, closestY, start, end)) {
-      closestX = closestX < start.x ? start.x : end.x
-      closestY = closestY < start.y ? start.y : end.y
+      closestX = closestX < start.x ? start.x : end.x;
+      closestY = closestY < start.y ? start.y : end.y;
     }
 
-    dx = closestX - circle.coordinates.x
-    dy = closestY - circle.coordinates.y
+    dx = closestX - circle.coordinates.x;
+    dy = closestY - circle.coordinates.y;
 
-    let distance = Math.sqrt(dx * dx + dy * dy)
+    let distance = Math.sqrt(dx * dx + dy * dy);
 
     if (distance <= circle.radius) {
-      return true
+      return true;
     }
   }
 
   // No collision
-  return false
+  return false;
 }
 
 function isPointOnLineSegment(x, y, start, end) {
@@ -317,9 +316,8 @@ function isPointOnLineSegment(x, y, start, end) {
     x <= Math.max(start.x, end.x) &&
     y >= Math.min(start.y, end.y) &&
     y <= Math.max(start.y, end.y)
-  )
+  );
 }
-
 
 ///// Main /////
 const MOVEMENT_SPEED = 6.5;
@@ -343,7 +341,35 @@ const KEYPRESS = {
   },
 };
 
+function restartGame() {
+  gameOver = false;
+  score = 0;
+  player.coordinates.x = CANVAS.width / 2;
+  player.coordinates.y = CANVAS.height / 2;
+  player.velocity.x = 0;
+  player.velocity.y = 0;
+  ASTEROIDS.length = 0;
+  PROJECTILES.length = 0;
+
+  CANVAS.removeEventListener("click", restartGame);
+  mainGame();
+}
+
 function mainGame() {
+  if (gameOver) {
+    CONTEXT.fillStyle = "black";
+    CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
+
+    CONTEXT.fillStyle = "white";
+    CONTEXT.font = "30px monospace";
+    CONTEXT.fillText("You have been hit by an asteroid!", CANVAS.width / 2 - 250, CANVAS.height / 2 - 70);
+    CONTEXT.fillText(`Your score was ${score}.`, CANVAS.width / 2 - 125, CANVAS.height / 2 - 30);
+    CONTEXT.fillText("Press the left mouse button to play again.", CANVAS.width / 2 - 310, CANVAS.height / 2 + 80)
+
+    CANVAS.addEventListener("click", restartGame);
+    return;
+  }
+
   const angle = player.rotation - Math.PI / 2;
 
   CONTEXT.fillStyle = "black";
