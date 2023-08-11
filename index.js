@@ -237,13 +237,21 @@ const ASTEROID_HIT = new Audio("./assets/sounds/bangMedium.wav");
 
 //// Music /////
 const musicFiles = [
-  "./assets/music/music2.wav",
-  "./assets/music/music3.wav",
-  "./assets/music/music5.wav",
+  "./assets/music/music1.mp3",
+  "./assets/music/music2.mp3",
+  "./assets/music/music3.mp3",
+  "./assets/music/music4.mp3",
 ];
 
+const preloadedMusicFiles = musicFiles.map((musicFile) => {
+  const audio = new Audio();
+  audio.src = musicFile;
+  audio.preload = "auto";
+  return audio;
+})
+
 let currentMusicIndex = Math.floor(Math.random() * musicFiles.length);
-let MUSIC = new Audio(musicFiles[currentMusicIndex]);
+let MUSIC = preloadedMusicFiles[currentMusicIndex];
 let isMusicPlaying = true;
 
 const musicToggleButton = document.createElement("button");
@@ -288,7 +296,7 @@ function toggleMusic() {
     iconElement.classList.remove("fa-play");
     iconElement.classList.add("fa-stop");
     currentMusicIndex = Math.floor(Math.random() * musicFiles.length);
-    MUSIC = new Audio(musicFiles[currentMusicIndex]);
+    MUSIC = preloadedMusicFiles[currentMusicIndex];
   }
   isMusicPlaying = !isMusicPlaying;
   updateVolume();
@@ -468,7 +476,7 @@ function mainGame(currentTime) {
     CONTEXT.font = "14px monospace";
     CONTEXT.fillText(
       "Music",
-      CANVAS.width / 2 + 905,
+      CANVAS.width / 2 + 906,
       CANVAS.height / 2 - 405
     );
     CONTEXT.font = "200px monospace";
@@ -483,7 +491,6 @@ function mainGame(currentTime) {
       CANVAS.width / 2 - 225,
       CANVAS.height / 2 + 160
     );
-
     CANVAS.addEventListener("click", startGame);
     return;
   }
@@ -653,9 +660,10 @@ mainGame();
 
 ///// Controls /////
 function fireProjectile() {
-  FIRE_SOUND.play();
   FIRE_SOUND.currentTime = 0;
   FIRE_SOUND.volume = 0.1;
+  FIRE_SOUND.play();
+
   PROJECTILES.push(
     new Projectile({
       coordinates: {
