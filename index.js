@@ -113,7 +113,7 @@ class Asteroid {
   constructor({ coordinates, velocity }) {
     this.coordinates = coordinates;
     this.velocity = velocity;
-    this.radius = 60 * Math.random() + 15;
+    this.radius = 80 * Math.random() + 10;
     this.numPoints = Math.floor(Math.random() * 4) + 5; // Random number of points for the asteroid shape.
   }
 
@@ -157,14 +157,16 @@ class Asteroid {
 }
 
 const ASTEROIDS = [];
-const MAX_ASTEROIDS = 50; // Maximum number of asteroids allowed on screen.
+const MAX_ASTEROIDS = 60; // Maximum number of asteroids allowed on screen.
 
 setInterval(() => {
   if (ASTEROIDS.length < MAX_ASTEROIDS) {
+    // Spawn location of asteroids (outside of canvas bounds).
     const randomX = Math.random() < 0.5 ? -50 : CANVAS.width + 50;
     const randomY = Math.random() < 0.5 ? -50 : CANVAS.height + 50;
-    const randomVelocityX = (Math.random() - 0.5) * 8.75;
-    const randomVelocityY = (Math.random() - 0.5) * 8.75;
+    // Asteroid travel speed.
+    const randomVelocityX = (Math.random() - 0.325) * 9.25;
+    const randomVelocityY = (Math.random() - 0.325) * 9.25;
 
     ASTEROIDS.push(
       new Asteroid({
@@ -173,8 +175,8 @@ setInterval(() => {
       })
     );
   }
-  console.log(ASTEROIDS);
-}, 700);
+  // Time in-between asteroid spawning.
+}, 380);
 
 function updateAsteroids() {
   for (let i = ASTEROIDS.length - 1; i >= 0; i--) {
@@ -201,15 +203,45 @@ function drawAsteroids() {
 
 ///// Sound Effects /////
 const FIRE_SOUND = new Audio("./assets/sounds/fire.wav");
+const ASTEROID_HIT = new Audio("./assets/sounds/bangMedium.wav");
 ///// End of Sound Effects /////
 
+///// Projectile to Asteroid Hit Detection /////
+function detectCollisions() {
+  for (let i = PROJECTILES.length - 1; i >= 0; i--) {
+    const PROJECTILE = PROJECTILES[i];
+
+    for (let j = ASTEROIDS.length - 1; j >= 0; j--) {
+      const ASTEROID = ASTEROIDS[j];
+
+      // Calculate the distance between the projectile and asteroid.
+      const distance = Math.sqrt(
+        (PROJECTILE.coordinates.x - ASTEROID.coordinates.x) ** 2 +
+          (PROJECTILE.coordinates.y - ASTEROID.coordinates.y) ** 2
+      );
+
+      // Check if the distance is less than the sum of the projectile radius and asteroid radius.
+      if (distance < PROJECTILE.radius + ASTEROID.radius) {
+        // Remove detected projectiles and asteroids that have collided.
+        PROJECTILES.splice(i, 1);
+        ASTEROIDS.splice(j, 1);
+        // Explosion sound effect.
+        ASTEROID_HIT.play();
+        ASTEROID_HIT.currentTime = 0;
+        ASTEROID_HIT.volume = 0.1;
+      }
+    }
+  }
+}
+//// End of Projectile to Asteroid Hit Detection /////
+
 ///// Main /////
-const MOVEMENT_SPEED = 7;
+const MOVEMENT_SPEED = 6.5;
 const ROTATION_SPEED = 0.125;
-const DECELERATION_RATE = 0.96;
+const DECELERATION_RATE = 0.94;
 const PROJECTILES = [];
 const EXPLOSIONS = [];
-const PROJECTILE_SPEED = 18;
+const PROJECTILE_SPEED = 17;
 const KEYPRESS = {
   w_key: {
     pressed: false,
@@ -237,6 +269,9 @@ function mainGame() {
   // Asteroid spawning & maintenance.
   updateAsteroids();
   drawAsteroids();
+
+  // Hit detection.
+  detectCollisions();
 
   for (let i = PROJECTILES.length - 1; i >= 0; i--) {
     const PROJECTILE = PROJECTILES[i];
