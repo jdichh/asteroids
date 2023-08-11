@@ -135,7 +135,7 @@ class Asteroid {
   constructor({ coordinates, velocity }) {
     this.coordinates = coordinates;
     this.velocity = velocity;
-    this.radius = 95 * Math.random() + 5;
+    this.radius = 100 * Math.random() + 5;
     this.numPoints = Math.floor(Math.random() * 4) + 5; // Random number of points for the asteroid shape.
   }
 
@@ -187,8 +187,8 @@ setInterval(() => {
     const randomX = Math.random() < 0.5 ? -50 : CANVAS.width + 50;
     const randomY = Math.random() < 0.5 ? -50 : CANVAS.height + 50;
     // Asteroid travel speed.
-    const randomVelocityX = (Math.random() - 0.7) * 13;
-    const randomVelocityY = (Math.random() - 0.7) * 13;
+    const randomVelocityX = (Math.random() - 0.6) * 14;
+    const randomVelocityY = (Math.random() - 0.6) * 14;
 
     ASTEROIDS.push(
       new Asteroid({
@@ -361,13 +361,13 @@ function mainGame() {
 
     CONTEXT.fillStyle = "white";
     CONTEXT.font = "30px monospace";
-    CONTEXT.fillText("You have been hit by an asteroid!", CANVAS.width / 2 - 250, CANVAS.height / 2 - 70);
-    CONTEXT.fillText(`Your score was ${score}.`, CANVAS.width / 2 - 125, CANVAS.height / 2 - 30);
-    CONTEXT.fillText("Press the left mouse button to play again.", CANVAS.width / 2 - 310, CANVAS.height / 2 + 80)
+    CONTEXT.fillText("You have been hit by an asteroid!", CANVAS.width / 2 - 275, CANVAS.height / 2 - 70);
+    CONTEXT.fillText(`Your score was ${score}.`, CANVAS.width / 2 - 150, CANVAS.height / 2 - 30);
+    CONTEXT.fillText("Press the left mouse button to play again.", CANVAS.width / 2 - 335, CANVAS.height / 2 + 80)
 
     CANVAS.addEventListener("click", restartGame);
     return;
-  }
+  } 
 
   const angle = player.rotation - Math.PI / 2;
 
@@ -523,9 +523,6 @@ window.addEventListener("keydown", (e) => {
       break;
     case "KeyD":
       KEYPRESS.d_key.pressed = true;
-      break;
-    case "Space":
-      fireProjectile()
       break;
   }
 });
