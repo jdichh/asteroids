@@ -318,6 +318,30 @@ function isPointOnLineSegment(x, y, start, end) {
 }
 ///// End of Hit Detection /////
 
+///// FPS COUNTER /////
+let fps = 0;
+let frameCount = 0;
+let startTime = performance.now();
+
+function calculateFPS() {
+  frameCount++;
+  const currentTime = performance.now();
+  const elapsedTime = currentTime - startTime;
+
+  if (elapsedTime > 1000) {
+    fps = Math.round((frameCount * 1000) / elapsedTime);
+    frameCount = 0;
+    startTime = currentTime;
+  }
+}
+
+function drawFPS() {
+  CONTEXT.fillStyle = "white";
+  CONTEXT.font = "16px monospace";
+  CONTEXT.fillText(`FPS: ${fps}`, 10, 20);
+}
+///// END OF FPS COUNTER /////
+
 ///// Main Game Data /////
 const MOVEMENT_SPEED = 6.5;
 const ROTATION_SPEED = 0.125;
@@ -354,7 +378,40 @@ function restartGame() {
   mainGame();
 }
 
-function mainGame() {
+let gameStarted = false;
+let lastFrameTime = 0;
+const frameRate = 60;
+
+function startGame() {
+  gameStarted = true;
+  lastFrameTime = performance.now(); // Reset the last frame time.
+  requestAnimationFrame(mainGame); 
+}
+
+function mainGame(currentTime) {
+  const deltaTime = (currentTime - lastFrameTime) / 100; // Calculate the time since the last frame in seconds.
+  if (deltaTime < 1 / frameRate) {
+    // Skip this frame if it's too soon.
+    requestAnimationFrame(mainGame);
+    return;
+  }
+  lastFrameTime = currentTime; // Update the last frame time.
+
+  if (!gameStarted) {
+    // Display the start screen
+    CONTEXT.fillStyle = "black";
+    CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
+
+    CONTEXT.fillStyle = "white";
+    CONTEXT.font = "20px monospace";
+    CONTEXT.fillText("Press the left mouse button to start the game.", CANVAS.width / 2 - 225, CANVAS.height / 2 + 160);
+    CONTEXT.font = "200px monospace";
+    CONTEXT.fillText("ASTEROIDS", CANVAS.width / 2 - 450, CANVAS.height / 2 - 80);
+
+    CANVAS.addEventListener("click", startGame);
+    return;
+  }
+
   if (gameOver) {
     CONTEXT.fillStyle = "black";
     CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
@@ -363,12 +420,13 @@ function mainGame() {
     CONTEXT.font = "30px monospace";
     CONTEXT.fillText("You have been hit by an asteroid!", CANVAS.width / 2 - 275, CANVAS.height / 2 - 70);
     CONTEXT.fillText(`Your score was ${score}.`, CANVAS.width / 2 - 150, CANVAS.height / 2 - 30);
-    CONTEXT.fillText("Press the left mouse button to play again.", CANVAS.width / 2 - 335, CANVAS.height / 2 + 80)
+    CONTEXT.font = "20px monospace";
+    CONTEXT.fillText("Press the left mouse button to play again.", CANVAS.width / 2 - 225, CANVAS.height / 2 + 80)
 
     CANVAS.addEventListener("click", restartGame);
     return;
   } 
-
+  
   const angle = player.rotation - Math.PI / 2;
 
   CONTEXT.fillStyle = "black";
@@ -383,6 +441,10 @@ function mainGame() {
 
   // Projectile to asteroid hit detection.
   detectCollisions();
+
+  // FPS COUNTER
+  calculateFPS();
+  drawFPS();
 
   // Scoreboard
   CONTEXT.fillStyle = "white";
