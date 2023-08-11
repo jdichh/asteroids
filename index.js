@@ -182,8 +182,7 @@ class Asteroid {
 const ASTEROIDS = [];
 const MAX_ASTEROIDS = 30; // Maximum number of asteroids allowed on screen.
 
-if (!gameStarted) {
-  setInterval(() => {
+setInterval(() => {
     if (ASTEROIDS.length < MAX_ASTEROIDS) {
       // Spawn location of asteroids (outside of canvas bounds).
       const randomX = Math.random() < 0.5 ? -50 : CANVAS.width + 50;
@@ -201,7 +200,7 @@ if (!gameStarted) {
     }
     // Time in-between asteroid spawning.
   }, 350);
-}
+
 
 function updateAsteroids() {
   for (let i = ASTEROIDS.length - 1; i >= 0; i--) {
@@ -231,8 +230,8 @@ function drawAsteroids() {
 ///// End of Asteroid Setup & Spawning /////
 
 ///// Sound Effects /////
-const FIRE_SOUND = new Audio("./assets/sounds/fire.wav");
-const ASTEROID_HIT = new Audio("./assets/sounds/bangMedium.wav");
+const FIRE_SOUND = new Audio("./assets/sounds/fire.mp3");
+const ASTEROID_HIT = new Audio("./assets/sounds/bangMedium.mp3");
 ///// End of Sound Effects /////
 
 //// Music /////
@@ -279,10 +278,10 @@ volumeSlider.addEventListener("input", updateVolume);
 CANVAS.parentNode.appendChild(musicToggleButton);
 CANVAS.parentNode.appendChild(volumeSlider);
 
-// Default volume in case the user has autoplay enabled to prevent deafening.
+// Default volume in case the user has autoplay enabled to prevent deafening on window load.
 MUSIC.volume = 0.1;
 
-// Set the initial volume based on the slider value
+// Set the initial volume based on the slider value.
 function updateVolume() {
   const volume = parseFloat(volumeSlider.value);
   MUSIC.volume = volume;
@@ -297,22 +296,25 @@ function toggleMusic() {
     MUSIC.pause();
     iconElement.classList.remove("fa-play");
     iconElement.classList.add("fa-stop");
-    currentMusicIndex = (currentMusicIndex + 1) % musicFiles.length; // Move to the next track
-    MUSIC = preloadedMusicFiles[currentMusicIndex];
-    MUSIC.play();
   }
   isMusicPlaying = !isMusicPlaying;
   updateVolume();
 }
 
-// Event listener for when the current song ends
-MUSIC.addEventListener("ended", () => {
-  currentMusicIndex = (currentMusicIndex + 1) % musicFiles.length; // Move to the next track
+function playNextTrack() {
+  currentMusicIndex = (currentMusicIndex + 1) % musicFiles.length;
   MUSIC = preloadedMusicFiles[currentMusicIndex];
-  toggleMusic();
+  MUSIC.currentTime = 0;
+  MUSIC.volume = 0.1;
+  MUSIC.play();
+}
+
+// Check if the current track has ended and play the next track if needed.
+MUSIC.addEventListener("ended", () => {
+  playNextTrack();
 });
 
-// Start playing the initial song
+// Autoplay the first track when the page loads.
 MUSIC.play();
 ///// End of Music /////
 
@@ -503,7 +505,6 @@ function mainGame(currentTime) {
       CANVAS.height / 2 + 125
     );
     CONTEXT.font = "14px monospace";
-    CONTEXT.fillText("Music", CANVAS.width / 2 + 907, CANVAS.height / 2 - 405);
     CONTEXT.fillText(
       "Music by Karl Casey. (Royalty-Free)",
       CANVAS.width / 2 - 125,
@@ -523,8 +524,6 @@ function mainGame(currentTime) {
     CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
 
     CONTEXT.fillStyle = "white";
-    CONTEXT.font = "14px monospace";
-    CONTEXT.fillText("Music", CANVAS.width / 2 + 905, CANVAS.height / 2 - 405);
     CONTEXT.font = "30px monospace";
     CONTEXT.fillText(
       "You have been hit by an asteroid!",
