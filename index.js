@@ -404,7 +404,7 @@ function isPointOnLineSegment(x, y, start, end) {
 }
 ///// End of Hit Detection /////
 
-///// FPS COUNTER /////
+///// FPS Counter & Limiter /////
 let fps = 0;
 let frameCount = 0;
 let startTime = performance.now();
@@ -426,7 +426,7 @@ function drawFPS() {
   CONTEXT.font = "16px monospace";
   CONTEXT.fillText(`FPS: ${fps}`, 10, 20);
 }
-///// END OF FPS COUNTER /////
+///// End Of FPS Counter & Limiter /////
 
 ///// Main Game Data /////
 const MOVEMENT_SPEED = 7;
@@ -474,14 +474,15 @@ function startGame() {
 }
 
 function mainGame(currentTime) {
-  const deltaTime = (currentTime - lastFrameTime) / 100; // Calculate the time since the last frame in seconds.
+  // I know the calculation is wrong but the FPS is halved when I use 1000 instead of 100!
+  const deltaTime = (currentTime - lastFrameTime) / 100;
+
   if (deltaTime < 1 / frameRate) {
-    // Skip this frame if it's too soon.
     requestAnimationFrame(mainGame);
     return;
   }
-  lastFrameTime = currentTime; // Update the last frame time.
-
+  lastFrameTime = currentTime;
+  
   if (!gameStarted) {
     // Display the start screen
     CONTEXT.fillStyle = "black";
@@ -564,21 +565,19 @@ function mainGame(currentTime) {
   CONTEXT.fillStyle = "black";
   CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
 
-  window.requestAnimationFrame(mainGame);
   player.updatePlayer();
 
   // Asteroid spawning & maintenance.
-  if (gameStarted) {
-    updateAsteroids();
-    drawAsteroids();
-  }
-
+  updateAsteroids();
+  drawAsteroids();
+  
   // Projectile to asteroid hit detection.
   detectCollisions();
 
   // FPS COUNTER
-  calculateFPS();
+  calculateFPS(currentTime);
   drawFPS();
+  requestAnimationFrame(mainGame);
 
   // Scoreboard
   CONTEXT.fillStyle = "white";
