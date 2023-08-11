@@ -180,27 +180,26 @@ class Asteroid {
 }
 
 const ASTEROIDS = [];
-const MAX_ASTEROIDS = 30; // Maximum number of asteroids allowed on screen.
+const MAX_ASTEROIDS = 35; // Maximum number of asteroids allowed on screen.
 
 setInterval(() => {
-    if (ASTEROIDS.length < MAX_ASTEROIDS) {
-      // Spawn location of asteroids (outside of canvas bounds).
-      const randomX = Math.random() < 0.5 ? -50 : CANVAS.width + 50;
-      const randomY = Math.random() < 0.5 ? -50 : CANVAS.height + 50;
-      // Asteroid travel speed.
-      const randomVelocityX = (Math.random() - 0.65) * 12;
-      const randomVelocityY = (Math.random() - 0.65) * 12;
+  if (ASTEROIDS.length < MAX_ASTEROIDS) {
+    // Spawn location of asteroids (outside of canvas bounds).
+    const randomX = Math.random() < 0.5 ? -50 : CANVAS.width + 50;
+    const randomY = Math.random() < 0.5 ? -50 : CANVAS.height + 50;
+    // Asteroid travel speed.
+    const randomVelocityX = (Math.random() - 0.65) * 13;
+    const randomVelocityY = (Math.random() - 0.65) * 13;
 
-      ASTEROIDS.push(
-        new Asteroid({
-          coordinates: { x: randomX, y: randomY },
-          velocity: { x: randomVelocityX, y: randomVelocityY },
-        })
-      );
-    }
-    // Time in-between asteroid spawning.
-  }, 350);
-
+    ASTEROIDS.push(
+      new Asteroid({
+        coordinates: { x: randomX, y: randomY },
+        velocity: { x: randomVelocityX, y: randomVelocityY },
+      })
+    );
+  }
+  // Time in-between asteroid spawning.
+}, 375);
 
 function updateAsteroids() {
   for (let i = ASTEROIDS.length - 1; i >= 0; i--) {
@@ -253,7 +252,7 @@ const preloadedMusicFiles = musicFiles.map((musicFile) => {
 
 let currentMusicIndex = Math.floor(Math.random() * musicFiles.length);
 let MUSIC = preloadedMusicFiles[currentMusicIndex];
-let isMusicPlaying = true;
+let isMusicPlaying = false;
 
 const musicToggleButton = document.createElement("button");
 musicToggleButton.setAttribute("id", "music-toggle-button");
@@ -450,6 +449,7 @@ const KEYPRESS = {
   },
 };
 
+
 function restartGame() {
   gameOver = false;
   score = 0;
@@ -461,6 +461,26 @@ function restartGame() {
   PROJECTILES.length = 0;
 
   CANVAS.removeEventListener("click", restartGame);
+
+  // Clear the "ended" event listener to prevent multiple track changes.
+  isMusicPlaying = true;
+  MUSIC.removeEventListener("ended", playNextTrack);
+
+  // Reset music and playback state.
+  MUSIC.pause();
+  currentMusicIndex = Math.floor(Math.random() * musicFiles.length);
+  MUSIC = preloadedMusicFiles[currentMusicIndex];
+  MUSIC.currentTime = 0;
+  MUSIC.volume = 0.1;
+
+  // Add the "ended" event listener again.
+  MUSIC.addEventListener("ended", playNextTrack);
+
+  // Restart the music if it was playing before.
+  if (isMusicPlaying) {
+    MUSIC.play();
+  }
+
   mainGame();
 }
 
