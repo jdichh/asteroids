@@ -8,10 +8,11 @@ CANVAS.height = window.innerHeight;
 
 ///// Class Setup /////
 class Player {
-  constructor({ coordinates, velocity }) {
+  constructor({ coordinates, velocity, radius }) {
     this.coordinates = coordinates;
     this.velocity = velocity;
     this.rotation = 0;
+    this.radius = radius
   }
 
   drawPlayer() {
@@ -105,6 +106,7 @@ class Projectile {
 const player = new Player({
   coordinates: { x: CANVAS.width / 2, y: CANVAS.height / 2 },
   velocity: { x: 0, y: 0 },
+  radius: 10,
 });
 ///// End of Class Setup /////
 
@@ -214,6 +216,16 @@ function detectCollisions() {
 
     for (let j = ASTEROIDS.length - 1; j >= 0; j--) {
       const ASTEROID = ASTEROIDS[j];
+
+      const checkPlayerCollision = Math.sqrt(
+        (player.coordinates.x - ASTEROID.coordinates.x) ** 2 +
+        (player.coordinates.y - ASTEROID.coordinates.y) ** 2
+      );
+      console.log(checkPlayerCollision)
+
+      if (checkPlayerCollision < player.radius + ASTEROID.radius) {
+        alert('DEAD')
+      }
 
       // Calculate the distance between the projectile and asteroid.
       const distance = Math.sqrt(
