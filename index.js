@@ -51,7 +51,7 @@ class Projectile {
     this.coordinates = coordinates;
     this.velocity = velocity;
     this.radius = 2;
-    this.maxDistance = 700; // Maximum distance the projectile can travel
+    this.maxDistance = 600; // Maximum distance the projectile can travel
     this.distanceTraveled = 0; // Distance traveled by the projectile
   }
 
@@ -113,7 +113,7 @@ class Asteroid {
   constructor({ coordinates, velocity }) {
     this.coordinates = coordinates;
     this.velocity = velocity;
-    this.radius = 80 * Math.random() + 10;
+    this.radius = 95 * Math.random() + 5;
     this.numPoints = Math.floor(Math.random() * 4) + 5; // Random number of points for the asteroid shape.
   }
 
@@ -157,7 +157,7 @@ class Asteroid {
 }
 
 const ASTEROIDS = [];
-const MAX_ASTEROIDS = 60; // Maximum number of asteroids allowed on screen.
+const MAX_ASTEROIDS = 90; // Maximum number of asteroids allowed on screen.
 
 setInterval(() => {
   if (ASTEROIDS.length < MAX_ASTEROIDS) {
@@ -165,8 +165,8 @@ setInterval(() => {
     const randomX = Math.random() < 0.5 ? -50 : CANVAS.width + 50;
     const randomY = Math.random() < 0.5 ? -50 : CANVAS.height + 50;
     // Asteroid travel speed.
-    const randomVelocityX = (Math.random() - 0.325) * 9.25;
-    const randomVelocityY = (Math.random() - 0.325) * 9.25;
+    const randomVelocityX = (Math.random() - 0.7) * 13;
+    const randomVelocityY = (Math.random() - 0.7) * 13;
 
     ASTEROIDS.push(
       new Asteroid({
@@ -176,7 +176,7 @@ setInterval(() => {
     );
   }
   // Time in-between asteroid spawning.
-}, 380);
+}, 425);
 
 function updateAsteroids() {
   for (let i = ASTEROIDS.length - 1; i >= 0; i--) {
@@ -206,7 +206,8 @@ const FIRE_SOUND = new Audio("./assets/sounds/fire.wav");
 const ASTEROID_HIT = new Audio("./assets/sounds/bangMedium.wav");
 ///// End of Sound Effects /////
 
-///// Projectile to Asteroid Hit Detection /////
+///// Projectile to Asteroid Hit Detection & Scoreboard /////
+let score = 0;
 function detectCollisions() {
   for (let i = PROJECTILES.length - 1; i >= 0; i--) {
     const PROJECTILE = PROJECTILES[i];
@@ -222,9 +223,21 @@ function detectCollisions() {
 
       // Check if the distance is less than the sum of the projectile radius and asteroid radius.
       if (distance < PROJECTILE.radius + ASTEROID.radius) {
+        score += 15;
         // Remove detected projectiles and asteroids that have collided.
         PROJECTILES.splice(i, 1);
         ASTEROIDS.splice(j, 1);
+        // Explosion visual effect.
+        const explosion = {
+          coordinates: { x: ASTEROID.coordinates.x, y: ASTEROID.coordinates.y },
+          particles: [],
+          maxParticles: 20,
+          particleSpeed: 2,
+          particleRadius: 1,
+          explosionDuration: 60, // Duration of the explosion in frames
+          frameCount: 0,
+        };
+        EXPLOSIONS.push(explosion);
         // Explosion sound effect.
         ASTEROID_HIT.play();
         ASTEROID_HIT.currentTime = 0;
@@ -270,8 +283,71 @@ function mainGame() {
   updateAsteroids();
   drawAsteroids();
 
-  // Hit detection.
+  // Projectile to asteroid hit detection.
   detectCollisions();
+
+  // Scores
+  CONTEXT.fillStyle = "white";
+  CONTEXT.font = "20px monospace";
+  CONTEXT.fillText("SCORE: " + score, 10, 25);
+
+  // Update and show explosions on projectile to asteroid impact.
+  for (let i = EXPLOSIONS.length - 1; i >= 0; i--) {
+    const EXPLOSION = EXPLOSIONS[i];
+
+    if (EXPLOSION.frameCount === 0) {
+      for (let j = 0; j < EXPLOSION.maxParticles; j++) {
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = {
+          x: Math.cos(angle) * EXPLOSION.particleSpeed,
+          y: Math.sin(angle) * EXPLOSION.particleSpeed,
+        };
+        const PARTICLE = {
+          coordinates: {
+            x: EXPLOSION.coordinates.x,
+            y: EXPLOSION.coordinates.y,
+          },
+          velocity,
+          radius: EXPLOSION.particleRadius,
+          color: EXPLOSION.particleColor,
+          alpha: 1,
+        };
+        EXPLOSION.particles.push(PARTICLE);
+      }
+    }
+
+    for (let j = EXPLOSION.particles.length - 1; j >= 0; j--) {
+      const PARTICLE = EXPLOSION.particles[j];
+      PARTICLE.coordinates.x += PARTICLE.velocity.x;
+      PARTICLE.coordinates.y += PARTICLE.velocity.y;
+      PARTICLE.alpha -= 0.02; // Reduce the opacity of the particle over time.
+      if (PARTICLE.alpha <= 0) {
+        EXPLOSION.particles.splice(j, 1);
+      }
+    }
+
+    EXPLOSION.frameCount++;
+
+    if (EXPLOSION.frameCount >= EXPLOSION.explosionDuration) {
+      EXPLOSIONS.splice(i, 1);
+    }
+
+    for (const PARTICLE of EXPLOSION.particles) {
+      CONTEXT.save();
+      CONTEXT.beginPath();
+      CONTEXT.arc(
+        PARTICLE.coordinates.x,
+        PARTICLE.coordinates.y,
+        PARTICLE.radius,
+        0,
+        Math.PI * 2
+      );
+      CONTEXT.closePath();
+      CONTEXT.fillStyle = `rgba(255, 255, 255, ${PARTICLE.alpha})`; // White color with alpha
+      CONTEXT.fill();
+      CONTEXT.restore();
+    }
+  }
 
   for (let i = PROJECTILES.length - 1; i >= 0; i--) {
     const PROJECTILE = PROJECTILES[i];
