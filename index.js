@@ -1,3 +1,5 @@
+let gameOver = false;
+
 ///// Canvas Setup /////
 const CANVAS = document.getElementById("canvas");
 const CONTEXT = CANVAS.getContext("2d");
@@ -5,8 +7,6 @@ const CONTEXT = CANVAS.getContext("2d");
 CANVAS.width = window.innerWidth;
 CANVAS.height = window.innerHeight;
 ///// End of Canvas Setup /////
-
-let gameOver = false;
 
 ///// Class Setup /////
 class Player {
@@ -73,7 +73,7 @@ class Projectile {
     this.coordinates = coordinates;
     this.velocity = velocity;
     this.radius = 2;
-    this.maxDistance = 600; // Maximum distance the projectile can travel
+    this.maxDistance = 700; // Maximum distance the projectile can travel
     this.distanceTraveled = 0; // Distance traveled by the projectile
   }
 
@@ -130,7 +130,7 @@ const player = new Player({
 });
 ///// End of Class Setup /////
 
-///// Asteroid Spawning /////
+///// Asteroid Setup & Spawning /////
 class Asteroid {
   constructor({ coordinates, velocity }) {
     this.coordinates = coordinates;
@@ -198,14 +198,14 @@ setInterval(() => {
     );
   }
   // Time in-between asteroid spawning.
-}, 425);
+}, 400);
 
 function updateAsteroids() {
   for (let i = ASTEROIDS.length - 1; i >= 0; i--) {
     const asteroid = ASTEROIDS[i];
     asteroid.updateAsteroid();
 
-    if (circleTriangleCollision(asteroid, player.getVertices())) {
+    if (playerCollided(asteroid, player.getVertices())) {
       gameOver = true;
     }
     // Remove the asteroid if it's out of bounds (Garbage collector).
@@ -225,14 +225,14 @@ function drawAsteroids() {
     asteroid.drawAsteroid();
   }
 }
-///// End of Asteroid Spawning /////
+///// End of Asteroid Setup & Spawning /////
 
 ///// Sound Effects /////
 const FIRE_SOUND = new Audio("./assets/sounds/fire.wav");
 const ASTEROID_HIT = new Audio("./assets/sounds/bangMedium.wav");
 ///// End of Sound Effects /////
 
-///// Projectile to Asteroid Hit Detection & Scoreboard /////
+///// Hit Detection /////
 let score = 0;
 function detectCollisions() {
   for (let i = PROJECTILES.length - 1; i >= 0; i--) {
@@ -271,10 +271,9 @@ function detectCollisions() {
     }
   }
 }
-//// End of Projectile to Asteroid Hit Detection /////
 
-function circleTriangleCollision(circle, triangle) {
-  // Check if the circle is colliding with any of the triangle's edges
+function playerCollided(circle, triangle) {
+  // Check if the circle is colliding with any of the triangle's edges.
   for (let i = 0; i < 3; i++) {
     let start = triangle[i];
     let end = triangle[(i + 1) % 3];
@@ -305,8 +304,7 @@ function circleTriangleCollision(circle, triangle) {
       return true;
     }
   }
-
-  // No collision
+  // No collision.
   return false;
 }
 
@@ -318,8 +316,9 @@ function isPointOnLineSegment(x, y, start, end) {
     y <= Math.max(start.y, end.y)
   );
 }
+///// End of Hit Detection /////
 
-///// Main /////
+///// Main Game Data /////
 const MOVEMENT_SPEED = 6.5;
 const ROTATION_SPEED = 0.125;
 const DECELERATION_RATE = 0.94;
@@ -385,10 +384,10 @@ function mainGame() {
   // Projectile to asteroid hit detection.
   detectCollisions();
 
-  // Scores
+  // Scoreboard
   CONTEXT.fillStyle = "white";
   CONTEXT.font = "20px monospace";
-  CONTEXT.fillText("SCORE: " + score, 10, 25);
+  CONTEXT.fillText(`SCORE: ${score}`, CANVAS.width / 2 - 37.5, CANVAS.height / 2 - 430);
 
   // Update and show explosions on projectile to asteroid impact.
   for (let i = EXPLOSIONS.length - 1; i >= 0; i--) {
@@ -490,6 +489,26 @@ function mainGame() {
 }
 
 mainGame();
+///// End of Main Game Data /////
+
+///// Controls /////
+function fireProjectile(){
+  FIRE_SOUND.play();
+  FIRE_SOUND.currentTime = 0;
+  FIRE_SOUND.volume = 0.1;
+  PROJECTILES.push(
+    new Projectile({
+      coordinates: {
+        x: player.coordinates.x + Math.cos(player.rotation) * 45,
+        y: player.coordinates.y + Math.sin(player.rotation) * 45,
+      },
+      velocity: {
+        x: Math.cos(player.rotation) * PROJECTILE_SPEED,
+        y: Math.sin(player.rotation) * PROJECTILE_SPEED,
+      },
+    })
+  );
+}
 
 window.addEventListener("keydown", (e) => {
   switch (e.code) {
@@ -506,21 +525,7 @@ window.addEventListener("keydown", (e) => {
       KEYPRESS.d_key.pressed = true;
       break;
     case "Space":
-      FIRE_SOUND.play();
-      FIRE_SOUND.currentTime = 0;
-      FIRE_SOUND.volume = 0.1;
-      PROJECTILES.push(
-        new Projectile({
-          coordinates: {
-            x: player.coordinates.x + Math.cos(player.rotation) * 45,
-            y: player.coordinates.y + Math.sin(player.rotation) * 45,
-          },
-          velocity: {
-            x: Math.cos(player.rotation) * PROJECTILE_SPEED,
-            y: Math.sin(player.rotation) * PROJECTILE_SPEED,
-          },
-        })
-      );
+      fireProjectile()
       break;
   }
 });
@@ -544,20 +549,6 @@ window.addEventListener("keyup", (e) => {
 
 window.addEventListener("mousedown", (e) => {
   if (e.button === 0) {
-    FIRE_SOUND.play();
-    FIRE_SOUND.currentTime = 0;
-    FIRE_SOUND.volume = 0.1;
-    PROJECTILES.push(
-      new Projectile({
-        coordinates: {
-          x: player.coordinates.x + Math.cos(player.rotation) * 45,
-          y: player.coordinates.y + Math.sin(player.rotation) * 45,
-        },
-        velocity: {
-          x: Math.cos(player.rotation) * PROJECTILE_SPEED,
-          y: Math.sin(player.rotation) * PROJECTILE_SPEED,
-        },
-      })
-    );
+    fireProjectile()
   }
 });
