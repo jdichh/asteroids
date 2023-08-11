@@ -74,7 +74,7 @@ class Projectile {
     this.coordinates = coordinates;
     this.velocity = velocity;
     this.radius = 3;
-    this.maxDistance = 700; // Maximum distance the projectile can travel
+    this.maxDistance = 500; // Maximum distance the projectile can travel
     this.distanceTraveled = 0; // Distance traveled by the projectile
   }
 
@@ -180,7 +180,7 @@ class Asteroid {
 }
 
 const ASTEROIDS = [];
-const MAX_ASTEROIDS = 90; // Maximum number of asteroids allowed on screen.
+const MAX_ASTEROIDS = 30; // Maximum number of asteroids allowed on screen.
 
 if (!gameStarted) {
   setInterval(() => {
@@ -189,8 +189,8 @@ if (!gameStarted) {
       const randomX = Math.random() < 0.5 ? -50 : CANVAS.width + 50;
       const randomY = Math.random() < 0.5 ? -50 : CANVAS.height + 50;
       // Asteroid travel speed.
-      const randomVelocityX = (Math.random() - 0.45) * 11;
-      const randomVelocityY = (Math.random() - 0.45) * 11;
+      const randomVelocityX = (Math.random() - 0.65) * 12;
+      const randomVelocityY = (Math.random() - 0.65) * 12;
 
       ASTEROIDS.push(
         new Asteroid({
@@ -200,7 +200,7 @@ if (!gameStarted) {
       );
     }
     // Time in-between asteroid spawning.
-  }, 500);
+  }, 350);
 }
 
 function updateAsteroids() {
@@ -416,11 +416,11 @@ function drawFPS() {
 
 ///// Main Game Data /////
 const MOVEMENT_SPEED = 6.5;
-const ROTATION_SPEED = 0.15;
-const DECELERATION_RATE = 0.94;
+const ROTATION_SPEED = 0.085;
+const DECELERATION_RATE = 0.93;
 const PROJECTILES = [];
 const EXPLOSIONS = [];
-const PROJECTILE_SPEED = 17.5;
+const PROJECTILE_SPEED = 18;
 const KEYPRESS = {
   w_key: {
     pressed: false,
@@ -472,16 +472,11 @@ function mainGame(currentTime) {
     // Display the start screen
     CONTEXT.fillStyle = "black";
     CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
-
     CONTEXT.fillStyle = "white";
-    CONTEXT.font = "14px monospace";
-    CONTEXT.fillText("Music", CANVAS.width / 2 + 906, CANVAS.height / 2 - 405);
-    CONTEXT.fillText("Music by Karl Casey. (Royalty-Free)", CANVAS.width / 2 - 125, CANVAS.height / 2 + 430);
-    CONTEXT.fillText("karlcasey.bandcamp.com", CANVAS.width / 2 - 75, CANVAS.height / 2 + 450);
     CONTEXT.font = "200px monospace";
     CONTEXT.fillText(
       "ASTEROIDS",
-      CANVAS.width / 2 - 450,
+      CANVAS.width / 2 - 490,
       CANVAS.height / 2 - 80
     );
     CONTEXT.font = "20px monospace";
@@ -492,8 +487,20 @@ function mainGame(currentTime) {
     );
     CONTEXT.fillText(
       "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right",
-      CANVAS.width / 2 - 350,
+      CANVAS.width / 2 - 345,
       CANVAS.height / 2 + 125
+    );
+    CONTEXT.font = "14px monospace";
+    CONTEXT.fillText("Music", CANVAS.width / 2 + 906, CANVAS.height / 2 - 405);
+    CONTEXT.fillText(
+      "Music by Karl Casey. (Royalty-Free)",
+      CANVAS.width / 2 - 125,
+      CANVAS.height / 2 + 430
+    );
+    CONTEXT.fillText(
+      "karlcasey.bandcamp.com",
+      CANVAS.width / 2 - 75,
+      CANVAS.height / 2 + 450
     );
     CANVAS.addEventListener("click", startGame);
     return;
@@ -519,14 +526,14 @@ function mainGame(currentTime) {
     );
     CONTEXT.font = "20px monospace";
     CONTEXT.fillText(
-      "Press the LEFT MOUSE BUTTON to play again.",
-      CANVAS.width / 2 - 225,
-      CANVAS.height / 2 + 80
+      "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right",
+      CANVAS.width / 2 - 345,
+      CANVAS.height / 2 + 125
     );
     CONTEXT.fillText(
-      "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right",
-      CANVAS.width / 2 - 350,
-      CANVAS.height / 2 + 125
+      "Press the LEFT MOUSE BUTTON to play again.",
+      CANVAS.width / 2 - 225,
+      CANVAS.height / 2 + 160
     );
 
     CANVAS.addEventListener("click", restartGame);
@@ -558,23 +565,25 @@ function mainGame(currentTime) {
   CONTEXT.fillText(`SCORE: ${score}`, CANVAS.width / 2 - 37.5, 25);
 
   // Controls
-  const angle = player.rotation - Math.PI / 2;
+  if (KEYPRESS.w_key.pressed || KEYPRESS.s_key.pressed) {
+    const movementSpeed = Math.abs(MOVEMENT_SPEED); // Use absolute value of movement speed
 
-  if (KEYPRESS.w_key.pressed) {
-    player.velocity.y = Math.cos(angle) * MOVEMENT_SPEED;
-    player.velocity.x = -Math.sin(angle) * MOVEMENT_SPEED;
-  } else if (KEYPRESS.a_key.pressed) {
-    player.rotation -= ROTATION_SPEED;
-  } else if (KEYPRESS.s_key.pressed) {
-    player.velocity.y = -Math.cos(angle) * MOVEMENT_SPEED;
-    player.velocity.x = Math.sin(angle) * MOVEMENT_SPEED;
-  } else if (KEYPRESS.d_key.pressed) {
-    player.rotation += ROTATION_SPEED;
-  }
-
-  if (!KEYPRESS.w_key.pressed) {
+    if (KEYPRESS.w_key.pressed) {
+      player.velocity.x = Math.cos(player.rotation) * movementSpeed;
+      player.velocity.y = Math.sin(player.rotation) * movementSpeed;
+    } else if (KEYPRESS.s_key.pressed) {
+      player.velocity.x = -Math.cos(player.rotation) * movementSpeed;
+      player.velocity.y = -Math.sin(player.rotation) * movementSpeed;
+    }
+  } else {
     player.velocity.x *= DECELERATION_RATE;
     player.velocity.y *= DECELERATION_RATE;
+  }
+
+  if (KEYPRESS.d_key.pressed) {
+    player.rotation += ROTATION_SPEED;
+  } else if (KEYPRESS.a_key.pressed) {
+    player.rotation -= ROTATION_SPEED;
   }
 
   // Enables the spaceship to "wrap around" the canvas.
