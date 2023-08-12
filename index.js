@@ -8,45 +8,31 @@ import { drawRestartScreenInfo } from "./javascript/restartScreenCanvas.js";
 import { resetScore, increaseScore } from "./javascript/scoreUtils.js";
 import { controlScheme } from "./javascript/controlScheme.js";
 import { enableCanvasWrap } from "./javascript/canvasWrap.js";
+import { renderParticles, updateParticles } from "./javascript/explosionParticles.js";
+import { spawnAsteroids } from "./javascript/asteroidUtils.js";
 import {
   ASTEROIDS,
-  MAX_ASTEROIDS,
   MAX_FPS,
   PROJECTILES,
   EXPLOSIONS,
   PROJECTILE_SPEED,
   KEYPRESS,
+  OFF_WHITE,
+  SPAWN_INTERVAL
 } from "./javascript/gameConstants.js";
 import {
   player,
-  Asteroid,
   Projectile,
 } from "./javascript/classes/gameClasses.js";
 
-let gameOver = false;
-let gameStarted = false;
+export let gameOver = false;
+export let gameStarted = false;
+let asteroidSpawnInterval;
 
 ///// Asteroid Setup & Spawning /////
-setInterval(() => {
-  if (gameStarted && !gameOver && ASTEROIDS.length < MAX_ASTEROIDS) {
-    // Spawn location of asteroids (outside of canvas bounds).
-    const randomX = Math.random() < 0.5 ? -50 : CANVAS.width + 50;
-    const randomY = Math.random() < 0.5 ? -50 : CANVAS.height + 50;
-    // Asteroid travel speed.
-    const randomVelocityX = (Math.random() - 0.65) * 13;
-    const randomVelocityY = (Math.random() - 0.65) * 13;
-
-    ASTEROIDS.push(
-      new Asteroid({
-        coordinates: { x: randomX, y: randomY },
-        velocity: { x: randomVelocityX, y: randomVelocityY },
-      })
-    );
-  }
-  // Time in-between asteroid spawning.
-}, 475);
-
-function updateAsteroids() {
+function updateAndDrawAsteroids() {
+  const asteroidsToRemove = [];
+  
   for (let i = ASTEROIDS.length - 1; i >= 0; i--) {
     const asteroid = ASTEROIDS[i];
     asteroid.updateAsteroid();
@@ -54,19 +40,23 @@ function updateAsteroids() {
     if (playerCollided(asteroid, player.getVertices())) {
       gameOver = true;
     }
-    // Remove the asteroid if it's out of bounds (Garbage collector).
+    
+    // Mark asteroids for removal if out of bounds.
     if (
       asteroid.coordinates.x < 0 ||
       asteroid.coordinates.x > CANVAS.width ||
       asteroid.coordinates.y < 0 ||
       asteroid.coordinates.y > CANVAS.height
     ) {
-      ASTEROIDS.splice(i, 1);
+      asteroidsToRemove.push(i);
     }
   }
-}
 
-function drawAsteroids() {
+  // Remove marked asteroids outside the loop.
+  for (const index of asteroidsToRemove) {
+    ASTEROIDS.splice(index, 1);
+  }
+
   for (const asteroid of ASTEROIDS) {
     asteroid.drawAsteroid();
   }
@@ -98,8 +88,8 @@ function detectCollisions() {
           particles: [],
           maxParticles: 15,
           particleSpeed: 2,
-          particleRadius: 1.5,
-          explosionDuration: 20, // Duration of the explosion in frames
+          particleRadius: 1,
+          explosionDuration: 15, // Duration of the explosion in frames
           frameCount: 0,
         };
         EXPLOSIONS.push(explosion);
@@ -166,18 +156,31 @@ function restartGame() {
   ASTEROIDS.length = 0;
   PROJECTILES.length = 0;
   CANVAS.removeEventListener("click", restartGame);
-  mainGame();
+  gameLoop();
 }
 
 let lastFrameTime = 0;
 
-function startGame() {
-  gameStarted = true;
-  lastFrameTime = performance.now(); // Reset the last frame time.
-  requestAnimationFrame(mainGame);
-}
+function gameLoop(currentTime){
+  if (!gameStarted) {
+    // Start screen.
+    drawStartScreenInfo();
+    CANVAS.addEventListener("click", () => {
+      gameStarted = true;
+      lastFrameTime = performance.now();
+      clearInterval(asteroidSpawnInterval);
+      requestAnimationFrame(gameLoop);
+    });
+    return;
+  }
 
-function mainGame(currentTime) {
+  if (gameOver) {
+    // What do you think?
+    drawRestartScreenInfo();
+    CANVAS.addEventListener("click", restartGame);
+    return;
+  }
+
   /*
    I tried enabling/disabling hardware acceleration in Chrome Dev and Firefox Dev Edition. (It's enabled for me now after testing.)
    FPS is somehow halved when using 1000, for example, if I the fps to 60, it's 30 in game.
@@ -185,41 +188,32 @@ function mainGame(currentTime) {
    My screen is at 60Hz, V-sync is off for browsers, and I've restarted my PC multiple times.
    Hmm.
   */
-  const DELTA_TIME = (currentTime - lastFrameTime) / 1000;
-  const targetTimePerFrame = 1 / MAX_FPS;
 
-  if (DELTA_TIME < targetTimePerFrame) {
-    // If the time is less, wait for the remaining time
-    const remainingTime = targetTimePerFrame - DELTA_TIME;
-    setTimeout(() => {
-      requestAnimationFrame(mainGame);
-    }, remainingTime * 1000); // Convert to milliseconds
-    return;
-  } else {
-    lastFrameTime = currentTime;
-  }
-
-  if (!gameStarted) {
-    // Display the start screen.
-    drawStartScreenInfo();
-    CANVAS.addEventListener("click", startGame);
-    return;
-  }
-
-  if (gameOver) {
-    drawRestartScreenInfo();
-    CANVAS.addEventListener("click", restartGame);
-    return;
-  }
-
-  CONTEXT.fillStyle = "rgb(16, 16, 16)";
+   const DELTA_TIME = (currentTime - lastFrameTime) / 1000;
+   const targetTimePerFrame = 1 / MAX_FPS;
+ 
+   if (DELTA_TIME < targetTimePerFrame) {
+     // If the time is less, wait for the remaining time
+     const remainingTime = targetTimePerFrame - DELTA_TIME;
+     setTimeout(() => {
+       requestAnimationFrame(gameLoop);
+     }, remainingTime * 1000); // Convert to milliseconds
+     return;
+   } else {
+     lastFrameTime = currentTime;
+   }
+ 
+  CONTEXT.fillStyle = OFF_WHITE;
   CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
 
   player.updatePlayer();
 
-  // Asteroid spawning & maintenance.
-  updateAsteroids();
-  drawAsteroids();
+   // Asteroid spawning.
+   
+   asteroidSpawnInterval = setInterval(spawnAsteroids, SPAWN_INTERVAL);
+
+  // Asteroid maintenance.
+  updateAndDrawAsteroids()
 
   // Projectile to asteroid hit detection.
   detectCollisions();
@@ -233,65 +227,39 @@ function mainGame(currentTime) {
 
   // Update and show explosions on projectile to asteroid impact.
   for (let i = EXPLOSIONS.length - 1; i >= 0; i--) {
-    const EXPLOSION = EXPLOSIONS[i];
-
-    if (EXPLOSION.frameCount === 0) {
-      for (let j = 0; j < EXPLOSION.maxParticles; j++) {
+    const explosion = EXPLOSIONS[i];
+  
+    if (explosion.frameCount === 0) {
+      const particlesToAdd = explosion.maxParticles - explosion.particles.length;
+      for (let j = 0; j < particlesToAdd; j++) {
         const angle = Math.random() * Math.PI * 2;
         const velocity = {
-          x: Math.cos(angle) * EXPLOSION.particleSpeed,
-          y: Math.sin(angle) * EXPLOSION.particleSpeed,
+          x: Math.cos(angle) * explosion.particleSpeed,
+          y: Math.sin(angle) * explosion.particleSpeed,
         };
-        const PARTICLE = {
-          coordinates: {
-            x: EXPLOSION.coordinates.x,
-            y: EXPLOSION.coordinates.y,
-          },
+        explosion.particles.push({
+          coordinates: { ...explosion.coordinates },
           velocity,
-          radius: EXPLOSION.particleRadius,
-          color: EXPLOSION.particleColor,
+          radius: explosion.particleRadius,
+          color: explosion.particleColor,
           alpha: 1,
-        };
-        EXPLOSION.particles.push(PARTICLE);
+        });
       }
     }
-
-    for (let j = EXPLOSION.particles.length - 1; j >= 0; j--) {
-      const PARTICLE = EXPLOSION.particles[j];
-      PARTICLE.coordinates.x += PARTICLE.velocity.x;
-      PARTICLE.coordinates.y += PARTICLE.velocity.y;
-      PARTICLE.alpha -= 0.02; // Reduce the opacity of the particle over time.
-      if (PARTICLE.alpha <= 0) {
-        EXPLOSION.particles.splice(j, 1);
-      }
-    }
-
-    EXPLOSION.frameCount++;
-
-    if (EXPLOSION.frameCount >= EXPLOSION.explosionDuration) {
+  
+    updateParticles(explosion);
+  
+    explosion.frameCount++;
+  
+    if (explosion.frameCount >= explosion.explosionDuration) {
       EXPLOSIONS.splice(i, 1);
     }
-
-    for (const PARTICLE of EXPLOSION.particles) {
-      CONTEXT.save();
-      CONTEXT.beginPath();
-      CONTEXT.arc(
-        PARTICLE.coordinates.x,
-        PARTICLE.coordinates.y,
-        PARTICLE.radius,
-        0,
-        Math.PI * 2
-      );
-      CONTEXT.closePath();
-      CONTEXT.fillStyle = `rgba(255, 255, 255, ${PARTICLE.alpha})`; // White color with alpha
-      CONTEXT.fill();
-      CONTEXT.restore();
-    }
+    renderParticles(explosion);
   }
-
+  
   for (let i = PROJECTILES.length - 1; i >= 0; i--) {
-    const PROJECTILE = PROJECTILES[i];
-    PROJECTILE.updateProjectile();
+    const projectile = PROJECTILES[i];
+    projectile.updateProjectile();
   }
 
   // Garbage collector for projectiles that traveled past the max distance.
@@ -299,28 +267,30 @@ function mainGame(currentTime) {
     PROJECTILES.splice(i, 1);
   }
 
-    // FPS COUNTER
-    calculateFPS(currentTime);
-    drawFPS();
-    requestAnimationFrame(mainGame);
+  // FPS COUNTER
+  calculateFPS(currentTime);
+  drawFPS();
+  requestAnimationFrame(gameLoop);
 }
 
-mainGame();
-///// End of Main Game Loop /////
+gameLoop()
 
 ///// Controls /////
 function fireProjectile() {
   soundManager.playSound("FIRE_SOUND", 0.1);
 
+  const cosRotation = Math.cos(player.rotation)
+  const sinRotation = Math.sin(player.rotation)
+
   PROJECTILES.push(
     new Projectile({
       coordinates: {
-        x: player.coordinates.x + Math.cos(player.rotation) * 45,
-        y: player.coordinates.y + Math.sin(player.rotation) * 45,
+        x: player.coordinates.x + cosRotation * 45,
+        y: player.coordinates.y + sinRotation * 45,
       },
       velocity: {
-        x: Math.cos(player.rotation) * PROJECTILE_SPEED,
-        y: Math.sin(player.rotation) * PROJECTILE_SPEED,
+        x: PROJECTILE_SPEED * cosRotation,
+        y: PROJECTILE_SPEED * sinRotation,
       },
     })
   );

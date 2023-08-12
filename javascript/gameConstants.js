@@ -1,13 +1,16 @@
-const MAX_FPS = 120;
-const MOVEMENT_SPEED = 7;
-const ROTATION_SPEED = 0.087;
-const DECELERATION_RATE = 0.93;
-const PROJECTILE_SPEED = 23;
-const MAX_ASTEROIDS = 50; // Maximum number of asteroids allowed on screen.
-const ASTEROIDS = [];
-const PROJECTILES = [];
-const EXPLOSIONS = [];
-const KEYPRESS = {
+export const OFF_WHITE = "rgb(16, 16, 16)"
+export const GREY = "rgb(220, 220, 220)"
+export const MAX_FPS = 120;
+export const MOVEMENT_SPEED = 7;
+export const ROTATION_SPEED = 0.087;
+export const DECELERATION_RATE = 0.93;
+export const PROJECTILE_SPEED = 23;
+export const MAX_ASTEROIDS = 30; // Maximum number of asteroids allowed on screen.
+export const SPAWN_INTERVAL = 500;
+export const ASTEROIDS = [];
+export const PROJECTILES = [];
+export const EXPLOSIONS = [];
+export const KEYPRESS = {
   w_key: {
     pressed: false,
   },
@@ -20,17 +23,4 @@ const KEYPRESS = {
   d_key: {
     pressed: false,
   },
-};
-
-export {
-  MAX_FPS,
-  MOVEMENT_SPEED,
-  ROTATION_SPEED,
-  DECELERATION_RATE,
-  PROJECTILE_SPEED,
-  MAX_ASTEROIDS,
-  ASTEROIDS,
-  PROJECTILES,
-  EXPLOSIONS,
-  KEYPRESS,
 };
