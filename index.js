@@ -1,5 +1,5 @@
 import soundManager from "./javascript/classes/soundEffectsManager.js";
-import { playNextTrack } from "./javascript/sfxAndMusic.js";
+import { playNextTrack, MUSIC } from "./javascript/sfxAndMusic.js";
 import { CANVAS, CONTEXT } from "./javascript/canvasUtils.js";
 import { drawFPS, calculateFPS } from "./javascript/fpsUtils.js";
 import { scoreBoard } from "./javascript/scoreUtils.js";
@@ -158,7 +158,7 @@ function isPointOnLineSegment(x, y, start, end) {
 ///// Main Game Loop /////
 function restartGame() {
   gameOver = false;
-  resetScore()
+  resetScore();
   player.coordinates.x = CANVAS.width / 2;
   player.coordinates.y = CANVAS.height / 2;
   player.velocity.x = 0;
@@ -168,26 +168,12 @@ function restartGame() {
 
   CANVAS.removeEventListener("click", restartGame);
 
-  // Clear the "ended" event listener to prevent multiple track changes.
-  isMusicPlaying = true;
-  MUSIC.removeEventListener("ended", playNextTrack);
-
   // Reset music and playback state.
-  MUSIC.pause();
-  currentMusicIndex = Math.floor(Math.random() * musicFiles.length);
-  MUSIC = preloadedMusicFiles[currentMusicIndex];
   MUSIC.currentTime = 0;
   MUSIC.volume = 0.1;
 
-  // Add the "ended" event listener again.
-  MUSIC.addEventListener("ended", playNextTrack);
-
-  // Restart the music if it was playing before.
-  if (isMusicPlaying) {
-    MUSIC.play();
-  }
-
   mainGame();
+  playNextTrack();
 }
 
 let lastFrameTime = 0;
@@ -200,8 +186,8 @@ function startGame() {
 
 function mainGame(currentTime) {
   /*
-   I tried enabling/disabling hardware acceleration in Chrome Dev and Firefox Dev Edition. (It's enabled for me now.)
-   FPS is somehow halved when using 1000.
+   I tried enabling/disabling hardware acceleration in Chrome Dev and Firefox Dev Edition. (It's enabled for me now after testing.)
+   FPS is somehow halved when using 1000, for example, if I the fps to 60, it's 30 in game.
    I've set it to 120fps to be 60fps in-game, for me at least. 
    My screen is at 60Hz, V-sync is off for browsers, and I've restarted my PC multiple times.
    Hmm.
