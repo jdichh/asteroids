@@ -15,19 +15,25 @@ export function drawStartScreenInfo() {
   CONTEXT.fillText(titleText, titleX, titleY);
 
   CONTEXT.font = "20px monospace";
-  const instructionText = "Press the LEFT MOUSE BUTTON to start the game.";
-  const instructionWidth = CONTEXT.measureText(instructionText).width;
-  const instructionX = (CANVAS.width - instructionWidth) / 2;
-  const instructionY = CANVAS.height / 2 + 160;
-  CONTEXT.fillText(instructionText, instructionX, instructionY);
-
   const controlsText = "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right | ESC - Pause";
   const controlsWidth = CONTEXT.measureText(controlsText).width;
   const controlsX = (CANVAS.width - controlsWidth) / 2;
   const controlsY = CANVAS.height / 2 + 125;
   CONTEXT.fillText(controlsText, controlsX, controlsY);
 
+  const instructionText = "Press the LEFT MOUSE BUTTON to start the game.";
+  const instructionWidth = CONTEXT.measureText(instructionText).width;
+  const instructionX = (CANVAS.width - instructionWidth) / 2;
+  const instructionY = CANVAS.height / 2 + 160;
+  CONTEXT.fillText(instructionText, instructionX, instructionY);
+
   CONTEXT.font = "14px monospace";
+  const scoreGuideText = "Note: Smaller asteroids are worth more than larger ones. Will you risk it?";
+  const scoreGuideWidth = CONTEXT.measureText(scoreGuideText).width;
+  const scoreGuideX = (CANVAS.width - scoreGuideWidth) / 2;
+  const scoreGuideY = CANVAS.height / 2 + 190;
+  CONTEXT.fillText(scoreGuideText, scoreGuideX, scoreGuideY);
+
   const musicText = "Music by Karl Casey. (Royalty-Free)";
   const musicWidth = CONTEXT.measureText(musicText).width;
   const musicX = (CANVAS.width - musicWidth) / 2;

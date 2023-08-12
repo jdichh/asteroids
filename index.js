@@ -89,8 +89,8 @@ function detectCollisions() {
       // Check if the distance is less than the sum of the projectile radius and asteroid radius.
       if (distance < PROJECTILE.radius + ASTEROID.radius) {
         // Score is based on how small the asteroid is that the player destroyed.
-        const asteroidSizeMultiplier = 1 - ASTEROID.radius / 200;
-        const baseScore = 10;
+        const asteroidSizeMultiplier = 1 - ASTEROID.radius / 450;
+        const baseScore = 15;
         const scoreIncrease = Math.round(baseScore * asteroidSizeMultiplier);
         increaseScore(scoreIncrease);
 

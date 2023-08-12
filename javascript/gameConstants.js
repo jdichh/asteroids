@@ -1,6 +1,6 @@
 export const OFF_WHITE = "rgb(220, 220, 220)"
 export const GREY = "rgb(16, 16, 16)"
-export const TRANSLUCENT = "rgba(16, 16, 16, 0.4)"
+export const TRANSLUCENT = "rgba(16, 16, 16, 0.85)"
 export const MAX_FPS = 120;
 export const MOVEMENT_SPEED = 7;
 export const ROTATION_SPEED = 0.087;

@@ -35,6 +35,12 @@ export function drawRestartScreenInfo() {
   CONTEXT.fillText(playAgainText, playAgainX, playAgainY);
 
   CONTEXT.font = "14px monospace";
+  const scoreGuideText = "Note: Smaller asteroids are worth more than larger ones. Will you risk it?";
+  const scoreGuideWidth = CONTEXT.measureText(scoreGuideText).width;
+  const scoreGuideX = (CANVAS.width - scoreGuideWidth) / 2;
+  const scoreGuideY = CANVAS.height / 2 + 190;
+  CONTEXT.fillText(scoreGuideText, scoreGuideX, scoreGuideY);
+
   const musicText = "Music by Karl Casey. (Royalty-Free)";
   const musicWidth = CONTEXT.measureText(musicText).width;
   const musicX = (CANVAS.width - musicWidth) / 2;
