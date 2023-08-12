@@ -165,15 +165,8 @@ function restartGame() {
   player.velocity.y = 0;
   ASTEROIDS.length = 0;
   PROJECTILES.length = 0;
-
   CANVAS.removeEventListener("click", restartGame);
-
-  // Reset music and playback state.
-  MUSIC.currentTime = 0;
-  MUSIC.volume = 0.1;
-
   mainGame();
-  playNextTrack();
 }
 
 let lastFrameTime = 0;
@@ -232,11 +225,11 @@ function mainGame(currentTime) {
   requestAnimationFrame(mainGame);
 
   // Scoreboard
-  scoreBoard()
+  scoreBoard();
 
   // Controls
-  controlScheme()
-  enableCanvasWrap()
+  controlScheme();
+  enableCanvasWrap();
 
   // Update and show explosions on projectile to asteroid impact.
   for (let i = EXPLOSIONS.length - 1; i >= 0; i--) {
