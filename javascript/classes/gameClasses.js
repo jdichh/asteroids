@@ -23,11 +23,8 @@ class Player {
       CONTEXT.lineTo(this.coordinates.x + 5, this.coordinates.y); // Middle bottom
       CONTEXT.lineTo(this.coordinates.x - 5, this.coordinates.y + 15); // Bottom right
       CONTEXT.closePath();
-  
-      CONTEXT.shadowColor = "rgba(179, 201, 198, 1)"; // Pale turquoise of some sort
-      CONTEXT.shadowBlur = 5; // Blur effect
-  
-      CONTEXT.fillStyle = "#dadada";
+      
+      CONTEXT.fillStyle = "rgba(220, 220, 220)";
       CONTEXT.fill();
   
       CONTEXT.restore();
@@ -85,7 +82,7 @@ class Player {
         false
       );
       CONTEXT.closePath();
-      CONTEXT.fillStyle = "#eeeeee";
+      CONTEXT.fillStyle = "rgba(220, 220, 220)";
       CONTEXT.fill();
     }
   
@@ -144,7 +141,7 @@ export class Asteroid {
       }
   
       CONTEXT.closePath();
-      CONTEXT.strokeStyle = "#eeeeee";
+      CONTEXT.strokeStyle = "rgb(220, 220, 220)";
       CONTEXT.stroke();
     }
   

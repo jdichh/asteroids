@@ -1,10 +1,10 @@
 import { CANVAS, CONTEXT } from "./canvasUtils.js";
 
 export function drawStartScreenInfo() {
-    CONTEXT.fillStyle = "black";
+    CONTEXT.fillStyle = "rgb(16, 16, 16)";
     CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
 
-    CONTEXT.fillStyle = "white";
+    CONTEXT.fillStyle = "rgb(220, 220, 220)";
     CONTEXT.font = "200px monospace";
 
     const titleText = "ASTEROIDS";

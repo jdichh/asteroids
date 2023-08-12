@@ -214,7 +214,7 @@ function mainGame(currentTime) {
     return;
   }
 
-  CONTEXT.fillStyle = "black";
+  CONTEXT.fillStyle = "rgb(16, 16, 16)";
   CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
 
   player.updatePlayer();

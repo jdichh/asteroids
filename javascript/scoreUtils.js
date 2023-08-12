@@ -11,7 +11,7 @@ export function resetScore() {
 }
 
 export function scoreBoard() {
-  CONTEXT.fillStyle = "white";
+  CONTEXT.fillStyle = "rgb(220, 220, 220)";
   CONTEXT.font = "16px monospace";
   CONTEXT.fillText(`SCORE: ${score}`, CANVAS.width / 2 - 37.5, 25);
 }

@@ -17,7 +17,7 @@ export function calculateFPS() {
 }
 
 export function drawFPS() {
-  CONTEXT.fillStyle = "white";
+  CONTEXT.fillStyle = "rgb(220, 220, 220)";
   CONTEXT.font = "16px monospace";
   CONTEXT.fillText(`FPS: ${fps}`, 10, 20);
 }
