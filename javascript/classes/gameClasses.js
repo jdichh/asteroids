@@ -1,5 +1,6 @@
 import { CANVAS, CONTEXT } from "../canvasUtils.js";
 import { PROJECTILES } from "../gameConstants.js";
+import { GREY } from "../gameConstants.js";
 
 class Player {
     constructor({ coordinates, velocity }) {
@@ -24,7 +25,7 @@ class Player {
       CONTEXT.lineTo(this.coordinates.x - 5, this.coordinates.y + 15); // Bottom right
       CONTEXT.closePath();
       
-      CONTEXT.fillStyle = "rgba(220, 220, 220)";
+      CONTEXT.fillStyle = GREY;
       CONTEXT.fill();
   
       CONTEXT.restore();
@@ -82,7 +83,7 @@ class Player {
         false
       );
       CONTEXT.closePath();
-      CONTEXT.fillStyle = "rgba(220, 220, 220)";
+      CONTEXT.fillStyle = GREY;
       CONTEXT.fill();
     }
   
@@ -141,7 +142,7 @@ export class Asteroid {
       }
   
       CONTEXT.closePath();
-      CONTEXT.strokeStyle = "rgb(220, 220, 220)";
+      CONTEXT.strokeStyle = GREY;
       CONTEXT.stroke();
     }
   

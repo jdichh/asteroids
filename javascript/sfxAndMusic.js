@@ -53,12 +53,13 @@ export function updateVolume() {
   MUSIC.volume = volume;
 }
 
+// MUSIC.playbackRate = 3 is used for testing if the music proceeds to the next random track.
 function startMusic() {
   currentMusicIndex = Math.floor(Math.random() * musicFiles.length);
   MUSIC = preloadedMusicFiles[currentMusicIndex];
   MUSIC.currentTime = 0;
   MUSIC.volume = 0.1;
-  // MUSIC.playbackRate = 2.5; for testing if playNextTrack() works.
+  // MUSIC.playbackRate = 3;
   MUSIC.addEventListener("ended", playNextTrack);
   if (isMusicPlaying) {
     MUSIC.play();
@@ -70,6 +71,7 @@ export function playNextTrack() {
   MUSIC = preloadedMusicFiles[currentMusicIndex];
   MUSIC.currentTime = 0;
   MUSIC.volume = 0.1;
+    // MUSIC.playbackRate = 3;
   if (isMusicPlaying) {
     MUSIC.play();
   }
@@ -87,6 +89,7 @@ function toggleMusic() {
     if (!MUSIC.paused) {
       playNextTrack();
     } else {
+      playNextTrack();
       MUSIC.play();
       iconElement.classList.remove("fas", "fa-music", "fa-sm");
       iconElement.classList.remove("fas", "fa-stop", "fa-sm");
