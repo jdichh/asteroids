@@ -8,6 +8,7 @@ export const musicFiles = [
   "./assets/music/music1.mp3",
   "./assets/music/music2.mp3",
   "./assets/music/music3.mp3",
+  "./assets/music/music4.mp3",
   "./assets/music/music5.mp3",
   "./assets/music/music6.mp3",
   "./assets/music/music7.mp3",
