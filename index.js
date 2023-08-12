@@ -11,7 +11,7 @@ import { enableCanvasWrap } from "./javascript/canvasWrap.js";
 import {
   ASTEROIDS,
   MAX_ASTEROIDS,
-  FRAMERATE,
+  MAX_FPS,
   PROJECTILES,
   EXPLOSIONS,
   PROJECTILE_SPEED,
@@ -186,9 +186,14 @@ function mainGame(currentTime) {
    Hmm.
   */
   const DELTA_TIME = (currentTime - lastFrameTime) / 1000;
+  const targetTimePerFrame = 1 / MAX_FPS;
 
-  if (DELTA_TIME < 1 / FRAMERATE) {
-    requestAnimationFrame(mainGame);
+  if (DELTA_TIME < targetTimePerFrame) {
+    // If the time is less, wait for the remaining time
+    const remainingTime = targetTimePerFrame - DELTA_TIME;
+    setTimeout(() => {
+      requestAnimationFrame(mainGame);
+    }, remainingTime * 1000); // Convert to milliseconds
     return;
   } else {
     lastFrameTime = currentTime;
@@ -218,11 +223,6 @@ function mainGame(currentTime) {
 
   // Projectile to asteroid hit detection.
   detectCollisions();
-
-  // FPS COUNTER
-  calculateFPS(currentTime);
-  drawFPS();
-  requestAnimationFrame(mainGame);
 
   // Scoreboard
   scoreBoard();
@@ -298,6 +298,11 @@ function mainGame(currentTime) {
   if (PROJECTILES.distanceTraveled >= PROJECTILES.maxDistance) {
     PROJECTILES.splice(i, 1);
   }
+
+    // FPS COUNTER
+    calculateFPS(currentTime);
+    drawFPS();
+    requestAnimationFrame(mainGame);
 }
 
 mainGame();

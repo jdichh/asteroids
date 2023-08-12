@@ -1,4 +1,4 @@
-const FRAMERATE = 120;
+const MAX_FPS = 120;
 const MOVEMENT_SPEED = 7;
 const ROTATION_SPEED = 0.087;
 const DECELERATION_RATE = 0.93;
@@ -23,7 +23,7 @@ const KEYPRESS = {
 };
 
 export {
-  FRAMERATE,
+  MAX_FPS,
   MOVEMENT_SPEED,
   ROTATION_SPEED,
   DECELERATION_RATE,
