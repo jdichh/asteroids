@@ -35,9 +35,36 @@ canvas {
 
 #volume-slider {
   position: absolute;
-  top: 2.7%;
+  top: 2%;
   right: 4%;
-  height: 0.2%;
   width: 6%;
   cursor: pointer;
+  background: none;
+  border: none;
+}
+
+#volume-slider::-webkit-slider-runnable-track {
+  background-color: white;
+  height: 4px;
+}
+
+#volume-slider::-moz-range-track {
+  background-color: white;
+  height: 4px;
+}
+
+#volume-slider::-webkit-slider-thumb,
+#volume-slider::-moz-range-thumb {
+  appearance: none;
+  width: 16px; 
+  height: 16px;
+  background-color: black;
+  border: 1px solid white; 
+  border-radius: 50%; 
+  cursor: pointer;
+}
+
+#volume-slider::-webkit-slider-thumb:active,
+#volume-slider::-moz-range-thumb:active {
+  background-color: white;
 }
