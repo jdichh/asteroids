@@ -2,11 +2,13 @@ import soundManager from "./javascript/classes/soundEffectsManager.js";
 import { playNextTrack } from "./javascript/sfxAndMusic.js";
 import { CANVAS, CONTEXT } from "./javascript/canvasUtils.js";
 import { drawFPS, calculateFPS } from "./javascript/fpsUtils.js";
-import { player, Asteroid, Projectile } from "./javascript/classes/gameClasses.js";
+import { scoreBoard } from "./javascript/scoreUtils.js";
 import { drawStartScreenInfo } from "./javascript/startScreenCanvas.js";
 import { drawRestartScreenInfo } from "./javascript/restartScreenCanvas.js";
-import { score, increaseScore } from "./javascript/scoreUtils.js";
+import { resetScore, increaseScore } from "./javascript/scoreUtils.js";
 import {
+  ASTEROIDS,
+  MAX_ASTEROIDS,
   FRAMERATE,
   MOVEMENT_SPEED,
   ROTATION_SPEED,
@@ -16,14 +18,16 @@ import {
   PROJECTILE_SPEED,
   KEYPRESS,
 } from "./javascript/gameConstants.js";
+import {
+  player,
+  Asteroid,
+  Projectile,
+} from "./javascript/classes/gameClasses.js";
 
 let gameOver = false;
 let gameStarted = false;
 
-///// Asteroid Setup /////
-const ASTEROIDS = [];
-const MAX_ASTEROIDS = 35; // Maximum number of asteroids allowed on screen.
-
+///// Asteroid Setup & Spawning /////
 setInterval(() => {
   if (gameStarted && !gameOver && ASTEROIDS.length < MAX_ASTEROIDS) {
     // Spawn location of asteroids (outside of canvas bounds).
@@ -85,7 +89,7 @@ function detectCollisions() {
 
       // Check if the distance is less than the sum of the projectile radius and asteroid radius.
       if (distance < PROJECTILE.radius + ASTEROID.radius) {
-        increaseScore(15)
+        increaseScore(15);
         // Remove detected projectiles and asteroids that have collided.
         PROJECTILES.splice(i, 1);
         ASTEROIDS.splice(j, 1);
@@ -155,7 +159,7 @@ function isPointOnLineSegment(x, y, start, end) {
 ///// Main Game Data /////
 function restartGame() {
   gameOver = false;
-  score = 0;
+  resetScore()
   player.coordinates.x = CANVAS.width / 2;
   player.coordinates.y = CANVAS.height / 2;
   player.velocity.x = 0;
@@ -214,13 +218,13 @@ function mainGame(currentTime) {
 
   if (!gameStarted) {
     // Display the start screen.
-    drawStartScreenInfo()
+    drawStartScreenInfo();
     CANVAS.addEventListener("click", startGame);
     return;
   }
 
   if (gameOver) {
-    drawRestartScreenInfo()
+    drawRestartScreenInfo();
     CANVAS.addEventListener("click", restartGame);
     return;
   }
@@ -243,9 +247,7 @@ function mainGame(currentTime) {
   requestAnimationFrame(mainGame);
 
   // Scoreboard
-  CONTEXT.fillStyle = "white";
-  CONTEXT.font = "16px monospace";
-  CONTEXT.fillText(`SCORE: ${score}`, CANVAS.width / 2 - 37.5, 25);
+  scoreBoard()
 
   // Controls
   if (KEYPRESS.w_key.pressed || KEYPRESS.s_key.pressed) {
