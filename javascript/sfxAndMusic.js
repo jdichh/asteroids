@@ -29,11 +29,7 @@ musicToggleButton.setAttribute("id", "music-toggle-button");
 musicToggleButton.addEventListener("click", toggleMusic);
 
 const iconElement = document.createElement("i");
-iconElement.classList.add("fas");
-iconElement.classList.add("fa-music");
-iconElement.classList.add("fa-sm");
-
-// Append the icon element to the button
+iconElement.classList.add("fas", "fa-music", "fa-sm");
 musicToggleButton.appendChild(iconElement);
 
 const volumeSlider = document.createElement("input");
@@ -48,7 +44,7 @@ volumeSlider.addEventListener("input", updateVolume);
 CANVAS.parentNode.appendChild(musicToggleButton);
 CANVAS.parentNode.appendChild(volumeSlider);
 
-// Default volume in case the user has autoplay enabled to prevent deafening on window load.
+// Default volume in case the user has autoplay enabled to prevent the user to be deaf after the page loads.
 MUSIC.volume = 0.1;
 
 // Set the initial volume based on the slider value.
@@ -57,31 +53,46 @@ export function updateVolume() {
   MUSIC.volume = volume;
 }
 
-export function toggleMusic() {
-  if (isMusicPlaying) {
-    MUSIC.pause();
-    iconElement.classList.remove("fa-music");
-    iconElement.classList.remove("fa-play");
-    iconElement.classList.add("fa-stop");
-  } else {
-    playNextTrack();
-    iconElement.classList.remove("fa-music");
-    iconElement.classList.remove("fa-stop");
-    iconElement.classList.add("fa-play");
-  }
-  isMusicPlaying = !isMusicPlaying;
-  updateVolume();
-}
-
-export function playNextTrack() {
-  MUSIC.pause();
+function startMusic() {
   currentMusicIndex = Math.floor(Math.random() * musicFiles.length);
   MUSIC = preloadedMusicFiles[currentMusicIndex];
   MUSIC.currentTime = 0;
   MUSIC.volume = 0.1;
-  // MUSIC.playbackRate = 2.5 -> for testing
+  // MUSIC.playbackRate = 2.5; for testing if playNextTrack() works.
   MUSIC.addEventListener("ended", playNextTrack);
-  MUSIC.play();
+  if (isMusicPlaying) {
+    MUSIC.play();
+  }
 }
 
-playNextTrack()
+export function playNextTrack() {
+  currentMusicIndex = (currentMusicIndex + 1) % musicFiles.length;
+  MUSIC = preloadedMusicFiles[currentMusicIndex];
+  MUSIC.currentTime = 0;
+  MUSIC.volume = 0.1;
+  if (isMusicPlaying) {
+    MUSIC.play();
+  }
+}
+
+startMusic();
+
+function toggleMusic() {
+  if (isMusicPlaying) {
+    MUSIC.pause();
+    iconElement.classList.remove("fas", "fa-music", "fa-sm");
+    iconElement.classList.remove("fas", "fa-play", "fa-sm");
+    iconElement.classList.add("fas", "fa-stop", "fa-sm");
+  } else {
+    if (!MUSIC.paused) {
+      playNextTrack();
+    } else {
+      MUSIC.play();
+      iconElement.classList.remove("fas", "fa-music", "fa-sm");
+      iconElement.classList.remove("fas", "fa-stop", "fa-sm");
+      iconElement.classList.add("fas", "fa-play", "fa-sm");
+    }
+  }
+  isMusicPlaying = !isMusicPlaying;
+  updateVolume();
+}

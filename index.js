@@ -1,5 +1,5 @@
 import soundManager from "./javascript/classes/soundEffectsManager.js";
-import { playNextTrack, MUSIC } from "./javascript/sfxAndMusic.js";
+import { playNextTrack, MUSIC } from "./javascript/sfxAndMusic.js"; // Don't remove. Disables music feature.
 import { CANVAS, CONTEXT } from "./javascript/canvasUtils.js";
 import { drawFPS, calculateFPS } from "./javascript/fpsUtils.js";
 import { scoreBoard } from "./javascript/scoreUtils.js";
