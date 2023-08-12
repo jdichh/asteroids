@@ -1,13 +1,9 @@
+import soundManager from "./javascript/classes/soundEffectsManager.js";
+import { playNextTrack } from "./javascript/soundsAndMusic.js";
+import { CANVAS, CONTEXT } from "./javascript/canvas.js";
+
 let gameOver = false;
 let gameStarted = false;
-
-///// Canvas Setup /////
-const CANVAS = document.getElementById("canvas");
-const CONTEXT = CANVAS.getContext("2d");
-
-CANVAS.width = window.innerWidth;
-CANVAS.height = window.innerHeight;
-///// End of Canvas Setup /////
 
 ///// Class Setup /////
 class Player {
@@ -228,95 +224,6 @@ function drawAsteroids() {
 }
 ///// End of Asteroid Setup & Spawning /////
 
-///// Sound Effects /////
-const FIRE_SOUND = new Audio("./assets/sounds/fire.mp3");
-const ASTEROID_HIT = new Audio("./assets/sounds/bangMedium.mp3");
-///// End of Sound Effects /////
-
-//// Music /////
-const musicFiles = [
-  "./assets/music/music1.mp3",
-  "./assets/music/music2.mp3",
-  "./assets/music/music3.mp3",
-  "./assets/music/music4.mp3",
-  "./assets/music/music5.mp3",
-  "./assets/music/music6.mp3",
-];
-
-const preloadedMusicFiles = musicFiles.map((musicFile) => {
-  const audio = new Audio();
-  audio.src = musicFile;
-  audio.preload = "auto";
-  return audio;
-});
-
-let currentMusicIndex = Math.floor(Math.random() * musicFiles.length);
-let MUSIC = preloadedMusicFiles[currentMusicIndex];
-let isMusicPlaying = false;
-
-const musicToggleButton = document.createElement("button");
-musicToggleButton.setAttribute("id", "music-toggle-button");
-musicToggleButton.addEventListener("click", toggleMusic);
-
-const iconElement = document.createElement("i");
-iconElement.classList.add("fas");
-iconElement.classList.add("fa-stop");
-
-// Append the icon element to the button
-musicToggleButton.appendChild(iconElement);
-
-const volumeSlider = document.createElement("input");
-volumeSlider.setAttribute("id", "volume-slider");
-volumeSlider.setAttribute("type", "range");
-volumeSlider.setAttribute("min", "0");
-volumeSlider.setAttribute("max", "1");
-volumeSlider.setAttribute("step", "0.01");
-volumeSlider.setAttribute("value", "0.1");
-volumeSlider.addEventListener("input", updateVolume);
-
-CANVAS.parentNode.appendChild(musicToggleButton);
-CANVAS.parentNode.appendChild(volumeSlider);
-
-// Default volume in case the user has autoplay enabled to prevent deafening on window load.
-MUSIC.volume = 0.1;
-
-// Set the initial volume based on the slider value.
-function updateVolume() {
-  const volume = parseFloat(volumeSlider.value);
-  MUSIC.volume = volume;
-}
-
-function toggleMusic() {
-  if (isMusicPlaying) {
-    MUSIC.play();
-    iconElement.classList.remove("fa-stop");
-    iconElement.classList.add("fa-play");
-  } else {
-    MUSIC.pause();
-    iconElement.classList.remove("fa-play");
-    iconElement.classList.add("fa-stop");
-  }
-  isMusicPlaying = !isMusicPlaying;
-  updateVolume();
-}
-
-function playNextTrack() {
-  currentMusicIndex = (currentMusicIndex + 1) % musicFiles.length;
-  MUSIC = preloadedMusicFiles[currentMusicIndex];
-  MUSIC.currentTime = 0;
-  MUSIC.volume = 0.1;
-  MUSIC.play();
-}
-
-// Check if the current track has ended and play the next track if needed.
-MUSIC.addEventListener("ended", () => {
-  playNextTrack();
-});
-
-// Autoplay the first track when the page loads.
-MUSIC.play();
-///// End of Music /////
-
 ///// Hit Detection /////
 let score = 0;
 function detectCollisions() {
@@ -349,9 +256,7 @@ function detectCollisions() {
         };
         EXPLOSIONS.push(explosion);
         // Explosion sound effect.
-        ASTEROID_HIT.play();
-        ASTEROID_HIT.currentTime = 0;
-        ASTEROID_HIT.volume = 0.1;
+        soundManager.playSound("ASTEROID_HIT", 0.1);
       }
     }
   }
@@ -449,7 +354,6 @@ const KEYPRESS = {
   },
 };
 
-
 function restartGame() {
   gameOver = false;
   score = 0;
@@ -502,7 +406,7 @@ function mainGame(currentTime) {
     return;
   }
   lastFrameTime = currentTime;
-  
+
   if (!gameStarted) {
     // Display the start screen
     CONTEXT.fillStyle = "black";
@@ -590,7 +494,7 @@ function mainGame(currentTime) {
   // Asteroid spawning & maintenance.
   updateAsteroids();
   drawAsteroids();
-  
+
   // Projectile to asteroid hit detection.
   detectCollisions();
 
@@ -713,9 +617,7 @@ mainGame();
 
 ///// Controls /////
 function fireProjectile() {
-  FIRE_SOUND.currentTime = 0;
-  FIRE_SOUND.volume = 0.1;
-  FIRE_SOUND.play();
+  soundManager.playSound("FIRE_SOUND", 0.1);
 
   PROJECTILES.push(
     new Projectile({
