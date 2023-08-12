@@ -223,6 +223,7 @@ function gameLoop(currentTime) {
       lastFrameTime = currentTime;
     }
 
+    CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);
     CONTEXT.fillStyle = GREY;
     CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
 
