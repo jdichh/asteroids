@@ -68,3 +68,13 @@ canvas {
 #volume-slider::-moz-range-thumb:active {
   background-color: white;
 }
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  #volume-slider {
+    top: 2.5%;
+    background-color: black;
+    height: 4px;
+  }
+}
+
+/* I don't know yet how to change the styling of the thumb on Chrome based browsers, sorry! */
