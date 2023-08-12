@@ -1,6 +1,6 @@
 # The Asteroids game from Atari.
 Built with the Canvas API.
-## Improvements to be made in the future:
+## Improvements to be made in the future (hopefully):
 <ul>
   <li>QuadTree for hit detection</li>
   <li>Vector mathematics for coordinates, distance & velocity</li>
