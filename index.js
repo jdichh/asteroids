@@ -1,5 +1,5 @@
 import soundManager from "./javascript/classes/soundEffectsManager.js";
-import { playNextTrack, MUSIC } from "./javascript/sfxAndMusic.js"; // Don't remove. Disables music feature.
+import * as Music from "./javascript/sfxAndMusic.js" // Don't remove. Disables music feature if removed.
 import { CANVAS, CONTEXT } from "./javascript/canvasUtils.js";
 import { drawFPS, calculateFPS } from "./javascript/fpsUtils.js";
 import { scoreBoard } from "./javascript/scoreUtils.js";
@@ -8,11 +8,12 @@ import { drawRestartScreenInfo } from "./javascript/restartScreenCanvas.js";
 import { resetScore, increaseScore } from "./javascript/scoreUtils.js";
 import { controlScheme } from "./javascript/controlScheme.js";
 import { enableCanvasWrap } from "./javascript/canvasWrap.js";
+import { player, Projectile } from "./javascript/classes/gameClasses.js";
+import { spawnAsteroids } from "./javascript/asteroidUtils.js";
 import {
   renderParticles,
   updateParticles,
 } from "./javascript/explosionParticles.js";
-import { spawnAsteroids } from "./javascript/asteroidUtils.js";
 import {
   ASTEROIDS,
   MAX_FPS,
@@ -23,7 +24,6 @@ import {
   OFF_WHITE,
   SPAWN_INTERVAL,
 } from "./javascript/gameConstants.js";
-import { player, Projectile } from "./javascript/classes/gameClasses.js";
 
 export let gameOver = false;
 export let gameStarted = false;
@@ -144,12 +144,12 @@ function playerCollided(circle, triangle) {
 }
 
 function isPointOnLineSegment(x, y, start, end) {
-  return (
-    x >= Math.min(start.x, end.x) &&
-    x <= Math.max(start.x, end.x) &&
-    y >= Math.min(start.y, end.y) &&
-    y <= Math.max(start.y, end.y)
-  );
+  const minX = Math.min(start.x, end.x);
+  const maxX = Math.max(start.x, end.x);
+  const minY = Math.min(start.y, end.y);
+  const maxY = Math.max(start.y, end.y);
+  
+  return x >= minX && x <= maxX && y >= minY && y <= maxY;
 }
 ///// End of Hit Detection /////
 
