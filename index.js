@@ -1,6 +1,17 @@
 import soundManager from "./javascript/classes/soundEffectsManager.js";
-import { playNextTrack } from "./javascript/soundsAndMusic.js";
+import { playNextTrack } from "./javascript/sfxAndMusic.js";
 import { CANVAS, CONTEXT } from "./javascript/canvas.js";
+import { drawFPS, calculateFPS } from "./javascript/fpsLimiterCounter.js";
+import {
+  FRAMERATE,
+  MOVEMENT_SPEED,
+  ROTATION_SPEED,
+  DECELERATION_RATE,
+  PROJECTILES,
+  EXPLOSIONS,
+  PROJECTILE_SPEED,
+  KEYPRESS,
+} from "./javascript/gameConstants.js";
 
 let gameOver = false;
 let gameStarted = false;
@@ -65,6 +76,11 @@ class Player {
   }
 }
 
+const player = new Player({
+  coordinates: { x: CANVAS.width / 2, y: CANVAS.height / 2 },
+  velocity: { x: 0, y: 0 },
+});
+
 class Projectile {
   constructor({ coordinates, velocity }) {
     this.coordinates = coordinates;
@@ -121,13 +137,6 @@ class Projectile {
   }
 }
 
-const player = new Player({
-  coordinates: { x: CANVAS.width / 2, y: CANVAS.height / 2 },
-  velocity: { x: 0, y: 0 },
-});
-///// End of Class Setup /////
-
-///// Asteroid Setup & Spawning /////
 class Asteroid {
   constructor({ coordinates, velocity }) {
     this.coordinates = coordinates;
@@ -174,6 +183,7 @@ class Asteroid {
     }
   }
 }
+///// End of Class Setup /////
 
 const ASTEROIDS = [];
 const MAX_ASTEROIDS = 35; // Maximum number of asteroids allowed on screen.
@@ -255,7 +265,6 @@ function detectCollisions() {
           frameCount: 0,
         };
         EXPLOSIONS.push(explosion);
-        // Explosion sound effect.
         soundManager.playSound("ASTEROID_HIT", 0.1);
       }
     }
@@ -308,52 +317,7 @@ function isPointOnLineSegment(x, y, start, end) {
 }
 ///// End of Hit Detection /////
 
-///// FPS Counter & Limiter /////
-let fps = 0;
-let frameCount = 0;
-let startTime = performance.now();
-
-function calculateFPS() {
-  frameCount++;
-  const currentTime = performance.now();
-  const elapsedTime = currentTime - startTime;
-
-  if (elapsedTime > 1000) {
-    fps = Math.round((frameCount * 1000) / elapsedTime);
-    frameCount = 0;
-    startTime = currentTime;
-  }
-}
-
-function drawFPS() {
-  CONTEXT.fillStyle = "white";
-  CONTEXT.font = "16px monospace";
-  CONTEXT.fillText(`FPS: ${fps}`, 10, 20);
-}
-///// End Of FPS Counter & Limiter /////
-
 ///// Main Game Data /////
-const MOVEMENT_SPEED = 7;
-const ROTATION_SPEED = 0.085;
-const DECELERATION_RATE = 0.93;
-const PROJECTILES = [];
-const EXPLOSIONS = [];
-const PROJECTILE_SPEED = 22.5;
-const KEYPRESS = {
-  w_key: {
-    pressed: false,
-  },
-  a_key: {
-    pressed: false,
-  },
-  s_key: {
-    pressed: false,
-  },
-  d_key: {
-    pressed: false,
-  },
-};
-
 function restartGame() {
   gameOver = false;
   score = 0;
@@ -389,7 +353,6 @@ function restartGame() {
 }
 
 let lastFrameTime = 0;
-const frameRate = 60;
 
 function startGame() {
   gameStarted = true;
@@ -398,48 +361,63 @@ function startGame() {
 }
 
 function mainGame(currentTime) {
-  // I know the calculation is wrong but the FPS is halved when I use 1000 instead of 100!
-  const deltaTime = (currentTime - lastFrameTime) / 100;
+  /*
+   I tried enabling/disabling hardware acceleration in Chrome Dev and Firefox Dev Edition. (It's enabled for me now.)
+   FPS is somehow halved when using 1000.
+   I've set it to 120fps to be 60fps in-game, for me at least. 
+   My screen is at 60Hz, V-sync is off for browsers, and I've restarted my PC multiple times.
+   Hmm.
+  */
+  const DELTA_TIME = (currentTime - lastFrameTime) / 1000;
 
-  if (deltaTime < 1 / frameRate) {
+  if (DELTA_TIME < 1 / FRAMERATE) {
     requestAnimationFrame(mainGame);
     return;
+  } else {
+    lastFrameTime = currentTime;
   }
-  lastFrameTime = currentTime;
 
   if (!gameStarted) {
-    // Display the start screen
+    // Display the start screen.
     CONTEXT.fillStyle = "black";
     CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
+
     CONTEXT.fillStyle = "white";
     CONTEXT.font = "200px monospace";
-    CONTEXT.fillText(
-      "ASTEROIDS",
-      CANVAS.width / 2 - 490,
-      CANVAS.height / 2 - 80
-    );
+
+    const titleText = "ASTEROIDS";
+    const titleWidth = CONTEXT.measureText(titleText).width;
+    const titleX = (CANVAS.width - titleWidth) / 2;
+    const titleY = CANVAS.height / 2 - 80;
+    CONTEXT.fillText(titleText, titleX, titleY);
+
     CONTEXT.font = "20px monospace";
-    CONTEXT.fillText(
-      "Press the LEFT MOUSE BUTTON to start the game.",
-      CANVAS.width / 2 - 225,
-      CANVAS.height / 2 + 160
-    );
-    CONTEXT.fillText(
-      "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right",
-      CANVAS.width / 2 - 345,
-      CANVAS.height / 2 + 125
-    );
+    const instructionText = "Press the LEFT MOUSE BUTTON to start the game.";
+    const instructionWidth = CONTEXT.measureText(instructionText).width;
+    const instructionX = (CANVAS.width - instructionWidth) / 2;
+    const instructionY = CANVAS.height / 2 + 160;
+    CONTEXT.fillText(instructionText, instructionX, instructionY);
+
+    const controlsText =
+      "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right";
+    const controlsWidth = CONTEXT.measureText(controlsText).width;
+    const controlsX = (CANVAS.width - controlsWidth) / 2;
+    const controlsY = CANVAS.height / 2 + 125;
+    CONTEXT.fillText(controlsText, controlsX, controlsY);
+
     CONTEXT.font = "14px monospace";
-    CONTEXT.fillText(
-      "Music by Karl Casey. (Royalty-Free)",
-      CANVAS.width / 2 - 125,
-      CANVAS.height / 2 + 430
-    );
-    CONTEXT.fillText(
-      "karlcasey.bandcamp.com",
-      CANVAS.width / 2 - 75,
-      CANVAS.height / 2 + 450
-    );
+
+    const musicText = "Music by Karl Casey. (Royalty-Free)";
+    const musicWidth = CONTEXT.measureText(musicText).width;
+    const musicX = (CANVAS.width - musicWidth) / 2;
+    const musicY = CANVAS.height / 2 + 430;
+    CONTEXT.fillText(musicText, musicX, musicY);
+
+    const musicWebsiteText = "karlcasey.bandcamp.com";
+    const musicWebsiteWidth = CONTEXT.measureText(musicWebsiteText).width;
+    const musicWebsiteX = (CANVAS.width - musicWebsiteWidth) / 2;
+    const musicWebsiteY = CANVAS.height / 2 + 450;
+    CONTEXT.fillText(musicWebsiteText, musicWebsiteX, musicWebsiteY);
     CANVAS.addEventListener("click", startGame);
     return;
   }
@@ -450,38 +428,45 @@ function mainGame(currentTime) {
 
     CONTEXT.fillStyle = "white";
     CONTEXT.font = "30px monospace";
-    CONTEXT.fillText(
-      "You have been hit by an asteroid!",
-      CANVAS.width / 2 - 275,
-      CANVAS.height / 2 - 70
-    );
-    CONTEXT.fillText(
-      `Your score was ${score}.`,
-      CANVAS.width / 2 - 150,
-      CANVAS.height / 2 - 30
-    );
+
+    const mainMessageText = "You have been hit by an asteroid!";
+    const mainMessageWidth = CONTEXT.measureText(mainMessageText).width;
+    const mainMessageX = (CANVAS.width - mainMessageWidth) / 2;
+    const mainMessageY = CANVAS.height / 2 - 70;
+    CONTEXT.fillText(mainMessageText, mainMessageX, mainMessageY);
+
+    const scoreText = `Your score was ${score}.`;
+    const scoreWidth = CONTEXT.measureText(scoreText).width;
+    const scoreX = (CANVAS.width - scoreWidth) / 2;
+    const scoreY = CANVAS.height / 2 - 30;
+    CONTEXT.fillText(scoreText, scoreX, scoreY);
+
     CONTEXT.font = "20px monospace";
-    CONTEXT.fillText(
-      "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right",
-      CANVAS.width / 2 - 345,
-      CANVAS.height / 2 + 125
-    );
-    CONTEXT.fillText(
-      "Press the LEFT MOUSE BUTTON to play again.",
-      CANVAS.width / 2 - 225,
-      CANVAS.height / 2 + 160
-    );
+    const controlsText =
+      "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right";
+    const controlsWidth = CONTEXT.measureText(controlsText).width;
+    const controlsX = (CANVAS.width - controlsWidth) / 2;
+    const controlsY = CANVAS.height / 2 + 125;
+    CONTEXT.fillText(controlsText, controlsX, controlsY);
+
+    const playAgainText = "Press the LEFT MOUSE BUTTON to play again.";
+    const playAgainWidth = CONTEXT.measureText(playAgainText).width;
+    const playAgainX = (CANVAS.width - playAgainWidth) / 2;
+    const playAgainY = CANVAS.height / 2 + 160;
+    CONTEXT.fillText(playAgainText, playAgainX, playAgainY);
+
     CONTEXT.font = "14px monospace";
-    CONTEXT.fillText(
-      "Music by Karl Casey. (Royalty-Free)",
-      CANVAS.width / 2 - 125,
-      CANVAS.height / 2 + 430
-    );
-    CONTEXT.fillText(
-      "karlcasey.bandcamp.com",
-      CANVAS.width / 2 - 75,
-      CANVAS.height / 2 + 450
-    );
+    const musicText = "Music by Karl Casey. (Royalty-Free)";
+    const musicWidth = CONTEXT.measureText(musicText).width;
+    const musicX = (CANVAS.width - musicWidth) / 2;
+    const musicY = CANVAS.height / 2 + 430;
+    CONTEXT.fillText(musicText, musicX, musicY);
+
+    const musicWebsiteText = "karlcasey.bandcamp.com";
+    const musicWebsiteWidth = CONTEXT.measureText(musicWebsiteText).width;
+    const musicWebsiteX = (CANVAS.width - musicWebsiteWidth) / 2;
+    const musicWebsiteY = CANVAS.height / 2 + 450;
+    CONTEXT.fillText(musicWebsiteText, musicWebsiteX, musicWebsiteY);
     CANVAS.addEventListener("click", restartGame);
     return;
   }
