@@ -18,13 +18,13 @@ export function drawStartScreenInfo() {
   const controlsText = "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right | ESC - Pause";
   const controlsWidth = CONTEXT.measureText(controlsText).width;
   const controlsX = (CANVAS.width - controlsWidth) / 2;
-  const controlsY = CANVAS.height / 2 + 125;
+  const controlsY = CANVAS.height / 2 + 160;
   CONTEXT.fillText(controlsText, controlsX, controlsY);
 
   const instructionText = "Press the LEFT MOUSE BUTTON to start the game.";
   const instructionWidth = CONTEXT.measureText(instructionText).width;
   const instructionX = (CANVAS.width - instructionWidth) / 2;
-  const instructionY = CANVAS.height / 2 + 160;
+  const instructionY = CANVAS.height / 2 + 125;
   CONTEXT.fillText(instructionText, instructionX, instructionY);
 
   CONTEXT.font = "14px monospace";

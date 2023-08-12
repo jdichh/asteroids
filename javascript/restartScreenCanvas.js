@@ -1,5 +1,5 @@
 import { CANVAS, CONTEXT } from "./canvasUtils.js";
-import { score } from "./scoreUtils.js";
+import { score, bestScore } from "./scoreUtils.js";
 import { OFF_WHITE, TRANSLUCENT } from "./gameConstants.js";
 
 export function drawRestartScreenInfo() {
@@ -18,15 +18,21 @@ export function drawRestartScreenInfo() {
   const scoreText = `Your score was ${score}.`;
   const scoreWidth = CONTEXT.measureText(scoreText).width;
   const scoreX = (CANVAS.width - scoreWidth) / 2;
-  const scoreY = CANVAS.height / 2 - 30;
+  const scoreY = CANVAS.height / 2 + 10;
   CONTEXT.fillText(scoreText, scoreX, scoreY);
 
+  const bestScoreText = `The score to beat is ${bestScore}.`;
+  const bestScoreWidth = CONTEXT.measureText(bestScoreText).width;
+  const bestScoreX = (CANVAS.width - bestScoreWidth) / 2;
+  const bestScoreY = CANVAS.height / 2 - 30;
+  CONTEXT.fillText(bestScoreText, bestScoreX, bestScoreY);
+
   CONTEXT.font = "20px monospace";
-  const controlsText = "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right | ESC - Pause";
-  const controlsWidth = CONTEXT.measureText(controlsText).width;
-  const controlsX = (CANVAS.width - controlsWidth) / 2;
-  const controlsY = CANVAS.height / 2 + 125;
-  CONTEXT.fillText(controlsText, controlsX, controlsY);
+  // const controlsText = "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right | ESC - Pause";
+  // const controlsWidth = CONTEXT.measureText(controlsText).width;
+  // const controlsX = (CANVAS.width - controlsWidth) / 2;
+  // const controlsY = CANVAS.height / 2 + 125;
+  // CONTEXT.fillText(controlsText, controlsX, controlsY);
 
   const playAgainText = "Press the LEFT MOUSE BUTTON to play again.";
   const playAgainWidth = CONTEXT.measureText(playAgainText).width;

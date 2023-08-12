@@ -26,17 +26,18 @@ export function drawPauseMenuInfo() {
     "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right";
   const controlsWidth = CONTEXT.measureText(controlsText).width;
   const controlsX = (CANVAS.width - controlsWidth) / 2;
-  const controlsY = CANVAS.height / 2 + 125;
+  const controlsY = CANVAS.height / 2 + 160;
   CONTEXT.fillText(controlsText, controlsX, controlsY);
 
   const resumeText = "Press the LEFT MOUSE BUTTON to resume playing.";
   const resumeWidth = CONTEXT.measureText(resumeText).width;
   const resumeX = (CANVAS.width - resumeWidth) / 2;
-  const resumeY = CANVAS.height / 2 + 160;
+  const resumeY = CANVAS.height / 2 + 125;
   CONTEXT.fillText(resumeText, resumeX, resumeY);
 
   CONTEXT.font = "14px monospace";
-  const scoreGuideText = "Note: Smaller asteroids are worth more than larger ones. Will you risk it?";
+  const scoreGuideText =
+    "Note: Smaller asteroids are worth more than larger ones. Will you risk it?";
   const scoreGuideWidth = CONTEXT.measureText(scoreGuideText).width;
   const scoreGuideX = (CANVAS.width - scoreGuideWidth) / 2;
   const scoreGuideY = CANVAS.height / 2 + 190;
