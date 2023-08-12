@@ -1,8 +1,8 @@
 const FRAMERATE = 120;
 const MOVEMENT_SPEED = 7;
-const ROTATION_SPEED = 0.085;
+const ROTATION_SPEED = 0.087;
 const DECELERATION_RATE = 0.93;
-const PROJECTILE_SPEED = 22.5;
+const PROJECTILE_SPEED = 23;
 const MAX_ASTEROIDS = 35; // Maximum number of asteroids allowed on screen.
 const ASTEROIDS = [];
 const PROJECTILES = [];

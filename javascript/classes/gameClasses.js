@@ -70,7 +70,7 @@ class Player {
       this.coordinates = coordinates;
       this.velocity = velocity;
       this.radius = 3;
-      this.maxDistance = 500; // Maximum distance the projectile can travel
+      this.maxDistance = 550; // Maximum distance the projectile can travel
       this.distanceTraveled = 0; // Distance traveled by the projectile
     }
   
@@ -107,17 +107,17 @@ class Player {
       }
   
       // Enables projectiles to "wrap around" the canvas.
-      // if (this.coordinates.x < 0) {
-      //   this.coordinates.x = CANVAS.width;
-      // } else if (this.coordinates.x > CANVAS.width) {
-      //   this.coordinates.x = 0;
-      // }
+      if (this.coordinates.x < 0) {
+        this.coordinates.x = CANVAS.width;
+      } else if (this.coordinates.x > CANVAS.width) {
+        this.coordinates.x = 0;
+      }
   
-      // if (this.coordinates.y < 0) {
-      //   this.coordinates.y = CANVAS.height;
-      // } else if (this.coordinates.y > CANVAS.height) {
-      //   this.coordinates.y = 0;
-      // }
+      if (this.coordinates.y < 0) {
+        this.coordinates.y = CANVAS.height;
+      } else if (this.coordinates.y > CANVAS.height) {
+        this.coordinates.y = 0;
+      }
     }
   }
   
@@ -125,7 +125,7 @@ export class Asteroid {
     constructor({ coordinates, velocity }) {
       this.coordinates = coordinates;
       this.velocity = velocity;
-      this.radius = 100 * Math.random() + 5;
+      this.radius = 120 * Math.random() + 5;
       this.numPoints = Math.floor(Math.random() * 4) + 5; // Random number of points for the asteroid shape.
     }
   

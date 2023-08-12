@@ -44,7 +44,7 @@ setInterval(() => {
     );
   }
   // Time in-between asteroid spawning.
-}, 375);
+}, 500);
 
 function updateAsteroids() {
   for (let i = ASTEROIDS.length - 1; i >= 0; i--) {
