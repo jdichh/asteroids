@@ -53,12 +53,13 @@ export function updateVolume() {
   MUSIC.volume = volume;
 }
 
+// MUSIC.playbackRate is for testing purposes.
 function startMusic() {
   currentMusicIndex = Math.floor(Math.random() * musicFiles.length);
   MUSIC = preloadedMusicFiles[currentMusicIndex];
   MUSIC.currentTime = 0;
   MUSIC.volume = 0.1;
-  // MUSIC.playbackRate = 2.5
+  // MUSIC.playbackRate = 3.5
   MUSIC.addEventListener("ended", playNextTrack);
   if (isMusicPlaying) {
     MUSIC.play();
@@ -71,6 +72,7 @@ export function playNextTrack() {
   MUSIC = preloadedMusicFiles[currentMusicIndex];
   MUSIC.currentTime = 0;
   MUSIC.volume = 0.1;
+  // MUSIC.playbackRate = 3.5
   MUSIC.addEventListener("ended", playNextTrack);
   if (isMusicPlaying) {
     MUSIC.play();

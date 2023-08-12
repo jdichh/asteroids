@@ -26,7 +26,6 @@ import {
   SPAWN_INTERVAL,
 } from "./javascript/gameConstants.js";
 
-
 export let gameOver = false;
 export let gameStarted = false;
 export let isPaused = false;
@@ -89,7 +88,12 @@ function detectCollisions() {
 
       // Check if the distance is less than the sum of the projectile radius and asteroid radius.
       if (distance < PROJECTILE.radius + ASTEROID.radius) {
-        increaseScore(15);
+        // Score is based on how small the asteroid is that the player destroyed.
+        const asteroidSizeMultiplier = 1 - ASTEROID.radius / 200;
+        const baseScore = 10;
+        const scoreIncrease = Math.round(baseScore * asteroidSizeMultiplier);
+        increaseScore(scoreIncrease);
+
         // Remove detected projectiles and asteroids that have collided.
         PROJECTILES.splice(i, 1);
         ASTEROIDS.splice(j, 1);
@@ -294,7 +298,6 @@ function gameLoop(currentTime) {
     return;
   }
 }
-
 gameLoop();
 
 ///// Controls /////
@@ -318,7 +321,6 @@ function fireProjectile() {
   );
 }
 
-
 window.addEventListener("mousedown", (e) => {
   if (gameStarted && !gameOver && !isPaused && e.button === 0) {
     fireProjectile();
@@ -328,8 +330,7 @@ window.addEventListener("mousedown", (e) => {
 window.addEventListener("keydown", (e) => {
   if (e.code === "Escape" && gameStarted && !gameOver) {
     isPaused = !isPaused;
-  }
-  else if (gameStarted) {
+  } else if (gameStarted) {
     switch (e.code) {
       case "KeyW":
         KEYPRESS.w_key.pressed = true;
