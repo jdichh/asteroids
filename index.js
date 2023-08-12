@@ -8,7 +8,10 @@ import { drawRestartScreenInfo } from "./javascript/restartScreenCanvas.js";
 import { resetScore, increaseScore } from "./javascript/scoreUtils.js";
 import { controlScheme } from "./javascript/controlScheme.js";
 import { enableCanvasWrap } from "./javascript/canvasWrap.js";
-import { renderParticles, updateParticles } from "./javascript/explosionParticles.js";
+import {
+  renderParticles,
+  updateParticles,
+} from "./javascript/explosionParticles.js";
 import { spawnAsteroids } from "./javascript/asteroidUtils.js";
 import {
   ASTEROIDS,
@@ -18,12 +21,9 @@ import {
   PROJECTILE_SPEED,
   KEYPRESS,
   OFF_WHITE,
-  SPAWN_INTERVAL
+  SPAWN_INTERVAL,
 } from "./javascript/gameConstants.js";
-import {
-  player,
-  Projectile,
-} from "./javascript/classes/gameClasses.js";
+import { player, Projectile } from "./javascript/classes/gameClasses.js";
 
 export let gameOver = false;
 export let gameStarted = false;
@@ -32,7 +32,7 @@ let asteroidSpawnInterval;
 ///// Asteroid Setup & Spawning /////
 function updateAndDrawAsteroids() {
   const asteroidsToRemove = [];
-  
+
   for (let i = ASTEROIDS.length - 1; i >= 0; i--) {
     const asteroid = ASTEROIDS[i];
     asteroid.updateAsteroid();
@@ -40,7 +40,7 @@ function updateAndDrawAsteroids() {
     if (playerCollided(asteroid, player.getVertices())) {
       gameOver = true;
     }
-    
+
     // Mark asteroids for removal if out of bounds.
     if (
       asteroid.coordinates.x < 0 ||
@@ -68,6 +68,14 @@ function detectCollisions() {
   for (let i = PROJECTILES.length - 1; i >= 0; i--) {
     const PROJECTILE = PROJECTILES[i];
 
+    // Skip collision checks if the projectile is out of the game area.
+    if (
+      PROJECTILE.coordinates.x > CANVAS.width ||
+      PROJECTILE.coordinates.y > CANVAS.height
+    ) {
+      continue;
+    }
+
     for (let j = ASTEROIDS.length - 1; j >= 0; j--) {
       const ASTEROID = ASTEROIDS[j];
       // Calculate the distance between the projectile and asteroid.
@@ -86,10 +94,10 @@ function detectCollisions() {
         const explosion = {
           coordinates: { x: ASTEROID.coordinates.x, y: ASTEROID.coordinates.y },
           particles: [],
-          maxParticles: 15,
+          maxParticles: 40,
           particleSpeed: 2,
-          particleRadius: 1,
-          explosionDuration: 15, // Duration of the explosion in frames
+          particleRadius: 0.5,
+          explosionDuration: 20, // Duration of the explosion in frames
           frameCount: 0,
         };
         EXPLOSIONS.push(explosion);
@@ -161,7 +169,7 @@ function restartGame() {
 
 let lastFrameTime = 0;
 
-function gameLoop(currentTime){
+function gameLoop(currentTime) {
   if (!gameStarted) {
     // Start screen.
     drawStartScreenInfo();
@@ -189,31 +197,31 @@ function gameLoop(currentTime){
    Hmm.
   */
 
-   const DELTA_TIME = (currentTime - lastFrameTime) / 1000;
-   const targetTimePerFrame = 1 / MAX_FPS;
- 
-   if (DELTA_TIME < targetTimePerFrame) {
-     // If the time is less, wait for the remaining time
-     const remainingTime = targetTimePerFrame - DELTA_TIME;
-     setTimeout(() => {
-       requestAnimationFrame(gameLoop);
-     }, remainingTime * 1000); // Convert to milliseconds
-     return;
-   } else {
-     lastFrameTime = currentTime;
-   }
- 
+  const DELTA_TIME = (currentTime - lastFrameTime) / 1000;
+  const targetTimePerFrame = 1 / MAX_FPS;
+
+  if (DELTA_TIME < targetTimePerFrame) {
+    // If the time is less, wait for the remaining time
+    const remainingTime = targetTimePerFrame - DELTA_TIME;
+    setTimeout(() => {
+      requestAnimationFrame(gameLoop);
+    }, remainingTime * 1000); // Convert to milliseconds
+    return;
+  } else {
+    lastFrameTime = currentTime;
+  }
+
   CONTEXT.fillStyle = OFF_WHITE;
   CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
 
   player.updatePlayer();
 
-   // Asteroid spawning.
-   
-   asteroidSpawnInterval = setInterval(spawnAsteroids, SPAWN_INTERVAL);
+  // Asteroid spawning.
+
+  asteroidSpawnInterval = setInterval(spawnAsteroids, SPAWN_INTERVAL);
 
   // Asteroid maintenance.
-  updateAndDrawAsteroids()
+  updateAndDrawAsteroids();
 
   // Projectile to asteroid hit detection.
   detectCollisions();
@@ -228,9 +236,10 @@ function gameLoop(currentTime){
   // Update and show explosions on projectile to asteroid impact.
   for (let i = EXPLOSIONS.length - 1; i >= 0; i--) {
     const explosion = EXPLOSIONS[i];
-  
+
     if (explosion.frameCount === 0) {
-      const particlesToAdd = explosion.maxParticles - explosion.particles.length;
+      const particlesToAdd =
+        explosion.maxParticles - explosion.particles.length;
       for (let j = 0; j < particlesToAdd; j++) {
         const angle = Math.random() * Math.PI * 2;
         const velocity = {
@@ -246,17 +255,17 @@ function gameLoop(currentTime){
         });
       }
     }
-  
+
     updateParticles(explosion);
-  
+
     explosion.frameCount++;
-  
+
     if (explosion.frameCount >= explosion.explosionDuration) {
       EXPLOSIONS.splice(i, 1);
     }
     renderParticles(explosion);
   }
-  
+
   for (let i = PROJECTILES.length - 1; i >= 0; i--) {
     const projectile = PROJECTILES[i];
     projectile.updateProjectile();
@@ -273,14 +282,14 @@ function gameLoop(currentTime){
   requestAnimationFrame(gameLoop);
 }
 
-gameLoop()
+gameLoop();
 
 ///// Controls /////
 function fireProjectile() {
   soundManager.playSound("FIRE_SOUND", 0.1);
 
-  const cosRotation = Math.cos(player.rotation)
-  const sinRotation = Math.sin(player.rotation)
+  const cosRotation = Math.cos(player.rotation);
+  const sinRotation = Math.sin(player.rotation);
 
   PROJECTILES.push(
     new Projectile({

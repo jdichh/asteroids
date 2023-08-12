@@ -13,19 +13,25 @@ export function updateParticles(explosion) {
 }
 
 export function renderParticles(explosion) {
-  for (const particle of explosion.particles) {
     CONTEXT.save();
-    CONTEXT.beginPath();
-    CONTEXT.arc(
-      particle.coordinates.x,
-      particle.coordinates.y,
-      particle.radius,
-      0,
-      Math.PI * 2
-    );
-    CONTEXT.closePath();
-    CONTEXT.fillStyle = `rgba(255, 255, 255, ${particle.alpha})`;
-    CONTEXT.fill();
+    CONTEXT.globalCompositeOperation = "lighter"; // Brighter particle colors.
+    
+    for (const particle of explosion.particles) {
+      const { coordinates, radius, alpha } = particle;
+  
+      CONTEXT.beginPath();
+      CONTEXT.arc(
+        coordinates.x,
+        coordinates.y,
+        radius,
+        0,
+        Math.PI * 2
+      );
+      CONTEXT.closePath();
+      CONTEXT.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+      CONTEXT.fill();
+    }
+    
     CONTEXT.restore();
   }
-}
+  
