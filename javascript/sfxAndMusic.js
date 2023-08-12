@@ -1,4 +1,4 @@
-import { CANVAS } from "./canvas.js";
+import { CANVAS } from "./canvasUtils.js";
 import soundManager from "./classes/soundEffectsManager.js";
 
 soundManager.preloadSound("FIRE_SOUND", "./assets/sounds/fire.mp3");

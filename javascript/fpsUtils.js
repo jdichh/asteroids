@@ -1,4 +1,4 @@
-import { CONTEXT } from "./canvas.js";
+import { CONTEXT } from "./canvasUtils.js";
 
 let fps = 0;
 let frameCount = 0;

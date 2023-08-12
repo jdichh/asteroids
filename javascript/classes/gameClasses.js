@@ -1,4 +1,4 @@
-import { CANVAS, CONTEXT } from "../canvas.js";
+import { CANVAS, CONTEXT } from "../canvasUtils.js";
 import { PROJECTILES } from "../gameConstants.js";
 
 class Player {

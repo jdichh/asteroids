@@ -1,8 +1,11 @@
 import soundManager from "./javascript/classes/soundEffectsManager.js";
 import { playNextTrack } from "./javascript/sfxAndMusic.js";
-import { CANVAS, CONTEXT } from "./javascript/canvas.js";
-import { drawFPS, calculateFPS } from "./javascript/fpsLimiterCounter.js";
+import { CANVAS, CONTEXT } from "./javascript/canvasUtils.js";
+import { drawFPS, calculateFPS } from "./javascript/fpsUtils.js";
 import { player, Asteroid, Projectile } from "./javascript/classes/gameClasses.js";
+import { drawStartScreenInfo } from "./javascript/startScreenCanvas.js";
+import { drawRestartScreenInfo } from "./javascript/restartScreenCanvas.js";
+import { score, increaseScore } from "./javascript/scoreUtils.js";
 import {
   FRAMERATE,
   MOVEMENT_SPEED,
@@ -17,6 +20,7 @@ import {
 let gameOver = false;
 let gameStarted = false;
 
+///// Asteroid Setup /////
 const ASTEROIDS = [];
 const MAX_ASTEROIDS = 35; // Maximum number of asteroids allowed on screen.
 
@@ -67,7 +71,6 @@ function drawAsteroids() {
 ///// End of Asteroid Setup & Spawning /////
 
 ///// Hit Detection /////
-let score = 0;
 function detectCollisions() {
   for (let i = PROJECTILES.length - 1; i >= 0; i--) {
     const PROJECTILE = PROJECTILES[i];
@@ -82,7 +85,7 @@ function detectCollisions() {
 
       // Check if the distance is less than the sum of the projectile radius and asteroid radius.
       if (distance < PROJECTILE.radius + ASTEROID.radius) {
-        score += 15;
+        increaseScore(15)
         // Remove detected projectiles and asteroids that have collided.
         PROJECTILES.splice(i, 1);
         ASTEROIDS.splice(j, 1);
@@ -211,94 +214,13 @@ function mainGame(currentTime) {
 
   if (!gameStarted) {
     // Display the start screen.
-    CONTEXT.fillStyle = "black";
-    CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
-
-    CONTEXT.fillStyle = "white";
-    CONTEXT.font = "200px monospace";
-
-    const titleText = "ASTEROIDS";
-    const titleWidth = CONTEXT.measureText(titleText).width;
-    const titleX = (CANVAS.width - titleWidth) / 2;
-    const titleY = CANVAS.height / 2 - 80;
-    CONTEXT.fillText(titleText, titleX, titleY);
-
-    CONTEXT.font = "20px monospace";
-    const instructionText = "Press the LEFT MOUSE BUTTON to start the game.";
-    const instructionWidth = CONTEXT.measureText(instructionText).width;
-    const instructionX = (CANVAS.width - instructionWidth) / 2;
-    const instructionY = CANVAS.height / 2 + 160;
-    CONTEXT.fillText(instructionText, instructionX, instructionY);
-
-    const controlsText =
-      "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right";
-    const controlsWidth = CONTEXT.measureText(controlsText).width;
-    const controlsX = (CANVAS.width - controlsWidth) / 2;
-    const controlsY = CANVAS.height / 2 + 125;
-    CONTEXT.fillText(controlsText, controlsX, controlsY);
-
-    CONTEXT.font = "14px monospace";
-
-    const musicText = "Music by Karl Casey. (Royalty-Free)";
-    const musicWidth = CONTEXT.measureText(musicText).width;
-    const musicX = (CANVAS.width - musicWidth) / 2;
-    const musicY = CANVAS.height / 2 + 430;
-    CONTEXT.fillText(musicText, musicX, musicY);
-
-    const musicWebsiteText = "karlcasey.bandcamp.com";
-    const musicWebsiteWidth = CONTEXT.measureText(musicWebsiteText).width;
-    const musicWebsiteX = (CANVAS.width - musicWebsiteWidth) / 2;
-    const musicWebsiteY = CANVAS.height / 2 + 450;
-    CONTEXT.fillText(musicWebsiteText, musicWebsiteX, musicWebsiteY);
+    drawStartScreenInfo()
     CANVAS.addEventListener("click", startGame);
     return;
   }
 
   if (gameOver) {
-    CONTEXT.fillStyle = "black";
-    CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
-
-    CONTEXT.fillStyle = "white";
-    CONTEXT.font = "30px monospace";
-
-    const mainMessageText = "You have been hit by an asteroid!";
-    const mainMessageWidth = CONTEXT.measureText(mainMessageText).width;
-    const mainMessageX = (CANVAS.width - mainMessageWidth) / 2;
-    const mainMessageY = CANVAS.height / 2 - 70;
-    CONTEXT.fillText(mainMessageText, mainMessageX, mainMessageY);
-
-    const scoreText = `Your score was ${score}.`;
-    const scoreWidth = CONTEXT.measureText(scoreText).width;
-    const scoreX = (CANVAS.width - scoreWidth) / 2;
-    const scoreY = CANVAS.height / 2 - 30;
-    CONTEXT.fillText(scoreText, scoreX, scoreY);
-
-    CONTEXT.font = "20px monospace";
-    const controlsText =
-      "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right";
-    const controlsWidth = CONTEXT.measureText(controlsText).width;
-    const controlsX = (CANVAS.width - controlsWidth) / 2;
-    const controlsY = CANVAS.height / 2 + 125;
-    CONTEXT.fillText(controlsText, controlsX, controlsY);
-
-    const playAgainText = "Press the LEFT MOUSE BUTTON to play again.";
-    const playAgainWidth = CONTEXT.measureText(playAgainText).width;
-    const playAgainX = (CANVAS.width - playAgainWidth) / 2;
-    const playAgainY = CANVAS.height / 2 + 160;
-    CONTEXT.fillText(playAgainText, playAgainX, playAgainY);
-
-    CONTEXT.font = "14px monospace";
-    const musicText = "Music by Karl Casey. (Royalty-Free)";
-    const musicWidth = CONTEXT.measureText(musicText).width;
-    const musicX = (CANVAS.width - musicWidth) / 2;
-    const musicY = CANVAS.height / 2 + 430;
-    CONTEXT.fillText(musicText, musicX, musicY);
-
-    const musicWebsiteText = "karlcasey.bandcamp.com";
-    const musicWebsiteWidth = CONTEXT.measureText(musicWebsiteText).width;
-    const musicWebsiteX = (CANVAS.width - musicWebsiteWidth) / 2;
-    const musicWebsiteY = CANVAS.height / 2 + 450;
-    CONTEXT.fillText(musicWebsiteText, musicWebsiteX, musicWebsiteY);
+    drawRestartScreenInfo()
     CANVAS.addEventListener("click", restartGame);
     return;
   }
