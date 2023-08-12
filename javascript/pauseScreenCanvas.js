@@ -2,37 +2,38 @@ import { CANVAS, CONTEXT } from "./canvasUtils.js";
 import { score } from "./scoreUtils.js";
 import { OFF_WHITE, TRANSLUCENT } from "./gameConstants.js";
 
-export function drawRestartScreenInfo() {
+export function drawPauseMenuInfo() {
   CONTEXT.fillStyle = TRANSLUCENT;
   CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
 
   CONTEXT.fillStyle = OFF_WHITE;
   CONTEXT.font = "30px monospace";
 
-  const mainMessageText = "You have been hit by an asteroid!";
-  const mainMessageWidth = CONTEXT.measureText(mainMessageText).width;
-  const mainMessageX = (CANVAS.width - mainMessageWidth) / 2;
-  const mainMessageY = CANVAS.height / 2 - 70;
-  CONTEXT.fillText(mainMessageText, mainMessageX, mainMessageY);
+  const pausedText = "GAME PAUSED";
+  const pausedWidth = CONTEXT.measureText(pausedText).width;
+  const pausedX = (CANVAS.width - pausedWidth) / 2;
+  const pausedY = CANVAS.height / 2 - 70;
+  CONTEXT.fillText(pausedText, pausedX, pausedY);
 
-  const scoreText = `Your score was ${score}.`;
+  const scoreText = `Your score is currently ${score}.`;
   const scoreWidth = CONTEXT.measureText(scoreText).width;
   const scoreX = (CANVAS.width - scoreWidth) / 2;
   const scoreY = CANVAS.height / 2 - 30;
   CONTEXT.fillText(scoreText, scoreX, scoreY);
 
   CONTEXT.font = "20px monospace";
-  const controlsText = "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right | ESC - Pause";
+  const controlsText =
+    "W - Forwards | A - Rotate Left | S - Backwards | D - Rotate Right";
   const controlsWidth = CONTEXT.measureText(controlsText).width;
   const controlsX = (CANVAS.width - controlsWidth) / 2;
   const controlsY = CANVAS.height / 2 + 125;
   CONTEXT.fillText(controlsText, controlsX, controlsY);
 
-  const playAgainText = "Press the LEFT MOUSE BUTTON to play again.";
-  const playAgainWidth = CONTEXT.measureText(playAgainText).width;
-  const playAgainX = (CANVAS.width - playAgainWidth) / 2;
-  const playAgainY = CANVAS.height / 2 + 160;
-  CONTEXT.fillText(playAgainText, playAgainX, playAgainY);
+  const resumeText = "Press the LEFT MOUSE BUTTON to resume playing.";
+  const resumeWidth = CONTEXT.measureText(resumeText).width;
+  const resumeX = (CANVAS.width - resumeWidth) / 2;
+  const resumeY = CANVAS.height / 2 + 160;
+  CONTEXT.fillText(resumeText, resumeX, resumeY);
 
   CONTEXT.font = "14px monospace";
   const musicText = "Music by Karl Casey. (Royalty-Free)";

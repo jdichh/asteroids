@@ -1,10 +1,11 @@
 import soundManager from "./javascript/classes/soundEffectsManager.js";
-import * as Music from "./javascript/sfxAndMusic.js" // Don't remove. Disables music feature if removed.
+import * as Music from "./javascript/sfxAndMusic.js"; // Don't remove. Disables music feature if removed.
 import { CANVAS, CONTEXT } from "./javascript/canvasUtils.js";
 import { drawFPS, calculateFPS } from "./javascript/fpsUtils.js";
 import { scoreBoard } from "./javascript/scoreUtils.js";
 import { drawStartScreenInfo } from "./javascript/startScreenCanvas.js";
 import { drawRestartScreenInfo } from "./javascript/restartScreenCanvas.js";
+import { drawPauseMenuInfo } from "./javascript/pauseScreenCanvas.js";
 import { resetScore, increaseScore } from "./javascript/scoreUtils.js";
 import { controlScheme } from "./javascript/controlScheme.js";
 import { enableCanvasWrap } from "./javascript/canvasWrap.js";
@@ -21,12 +22,14 @@ import {
   EXPLOSIONS,
   PROJECTILE_SPEED,
   KEYPRESS,
-  OFF_WHITE,
+  GREY,
   SPAWN_INTERVAL,
 } from "./javascript/gameConstants.js";
 
+
 export let gameOver = false;
 export let gameStarted = false;
+export let isPaused = false;
 let asteroidSpawnInterval;
 
 ///// Asteroid Setup & Spawning /////
@@ -148,7 +151,7 @@ function isPointOnLineSegment(x, y, start, end) {
   const maxX = Math.max(start.x, end.x);
   const minY = Math.min(start.y, end.y);
   const maxY = Math.max(start.y, end.y);
-  
+
   return x >= minX && x <= maxX && y >= minY && y <= maxY;
 }
 ///// End of Hit Detection /////
@@ -165,6 +168,10 @@ function restartGame() {
   PROJECTILES.length = 0;
   CANVAS.removeEventListener("click", restartGame);
   gameLoop();
+}
+
+function resumeGame() {
+  isPaused = false;
 }
 
 let lastFrameTime = 0;
@@ -191,95 +198,101 @@ function gameLoop(currentTime) {
 
   /*
    I tried enabling/disabling hardware acceleration in Chrome Dev and Firefox Dev Edition. (It's enabled for me now after testing.)
-   FPS is somehow halved when using 1000, for example, if I the fps to 60, it's 30 in game.
+   FPS is somehow halved when using 1000 in DELTA_TIME, for example, if I set the fps in gameConstants.js to 60, it's 30 in game. Weird.
    I've set it to 120fps to be 60fps in-game, for me at least. 
    My screen is at 60Hz, V-sync is off for browsers, and I've restarted my PC multiple times.
-   Hmm.
+   Hmm. You wouldn't happen to know, would you? :)
   */
 
-  const DELTA_TIME = (currentTime - lastFrameTime) / 1000;
-  const targetTimePerFrame = 1 / MAX_FPS;
+  if (!isPaused & !gameOver) {
+    const DELTA_TIME = (currentTime - lastFrameTime) / 1000;
+    const targetTimePerFrame = 1 / MAX_FPS;
 
-  if (DELTA_TIME < targetTimePerFrame) {
-    // If the time is less, wait for the remaining time
-    const remainingTime = targetTimePerFrame - DELTA_TIME;
-    setTimeout(() => {
-      requestAnimationFrame(gameLoop);
-    }, remainingTime * 1000); // Convert to milliseconds
-    return;
-  } else {
-    lastFrameTime = currentTime;
-  }
+    if (DELTA_TIME < targetTimePerFrame) {
+      // If the time is less, wait for the remaining time
+      const remainingTime = targetTimePerFrame - DELTA_TIME;
+      setTimeout(() => {
+        requestAnimationFrame(gameLoop);
+      }, remainingTime * 1000); // Convert to milliseconds
+      return;
+    } else {
+      lastFrameTime = currentTime;
+    }
 
-  CONTEXT.fillStyle = OFF_WHITE;
-  CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
+    CONTEXT.fillStyle = GREY;
+    CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
 
-  player.updatePlayer();
+    player.updatePlayer();
 
-  // Asteroid spawning.
+    // Asteroid spawning.
+    asteroidSpawnInterval = setInterval(spawnAsteroids, SPAWN_INTERVAL);
 
-  asteroidSpawnInterval = setInterval(spawnAsteroids, SPAWN_INTERVAL);
+    // Asteroid maintenance.
+    updateAndDrawAsteroids();
 
-  // Asteroid maintenance.
-  updateAndDrawAsteroids();
+    // Projectile to asteroid hit detection.
+    detectCollisions();
 
-  // Projectile to asteroid hit detection.
-  detectCollisions();
+    // Scoreboard
+    scoreBoard();
 
-  // Scoreboard
-  scoreBoard();
+    // Controls
+    controlScheme();
+    enableCanvasWrap();
 
-  // Controls
-  controlScheme();
-  enableCanvasWrap();
+    // Update and show explosions on projectile to asteroid impact.
+    for (let i = EXPLOSIONS.length - 1; i >= 0; i--) {
+      const explosion = EXPLOSIONS[i];
 
-  // Update and show explosions on projectile to asteroid impact.
-  for (let i = EXPLOSIONS.length - 1; i >= 0; i--) {
-    const explosion = EXPLOSIONS[i];
-
-    if (explosion.frameCount === 0) {
-      const particlesToAdd =
-        explosion.maxParticles - explosion.particles.length;
-      for (let j = 0; j < particlesToAdd; j++) {
-        const angle = Math.random() * Math.PI * 2;
-        const velocity = {
-          x: Math.cos(angle) * explosion.particleSpeed,
-          y: Math.sin(angle) * explosion.particleSpeed,
-        };
-        explosion.particles.push({
-          coordinates: { ...explosion.coordinates },
-          velocity,
-          radius: explosion.particleRadius,
-          color: explosion.particleColor,
-          alpha: 1,
-        });
+      if (explosion.frameCount === 0) {
+        const particlesToAdd =
+          explosion.maxParticles - explosion.particles.length;
+        for (let j = 0; j < particlesToAdd; j++) {
+          const angle = Math.random() * Math.PI * 2;
+          const velocity = {
+            x: Math.cos(angle) * explosion.particleSpeed,
+            y: Math.sin(angle) * explosion.particleSpeed,
+          };
+          explosion.particles.push({
+            coordinates: { ...explosion.coordinates },
+            velocity,
+            radius: explosion.particleRadius,
+            color: explosion.particleColor,
+            alpha: 1,
+          });
+        }
       }
+
+      updateParticles(explosion);
+
+      explosion.frameCount++;
+
+      if (explosion.frameCount >= explosion.explosionDuration) {
+        EXPLOSIONS.splice(i, 1);
+      }
+      renderParticles(explosion);
     }
 
-    updateParticles(explosion);
-
-    explosion.frameCount++;
-
-    if (explosion.frameCount >= explosion.explosionDuration) {
-      EXPLOSIONS.splice(i, 1);
+    for (let i = PROJECTILES.length - 1; i >= 0; i--) {
+      const projectile = PROJECTILES[i];
+      projectile.updateProjectile();
     }
-    renderParticles(explosion);
-  }
 
-  for (let i = PROJECTILES.length - 1; i >= 0; i--) {
-    const projectile = PROJECTILES[i];
-    projectile.updateProjectile();
-  }
+    // Garbage collector for projectiles that traveled past the max distance.
+    if (PROJECTILES.distanceTraveled >= PROJECTILES.maxDistance) {
+      PROJECTILES.splice(i, 1);
+    }
 
-  // Garbage collector for projectiles that traveled past the max distance.
-  if (PROJECTILES.distanceTraveled >= PROJECTILES.maxDistance) {
-    PROJECTILES.splice(i, 1);
+    // FPS COUNTER
+    calculateFPS(currentTime);
+    drawFPS();
+    requestAnimationFrame(gameLoop);
+  } else {
+    // What do you think?
+    drawPauseMenuInfo();
+    CANVAS.addEventListener("click", resumeGame);
+    return;
   }
-
-  // FPS COUNTER
-  calculateFPS(currentTime);
-  drawFPS();
-  requestAnimationFrame(gameLoop);
 }
 
 gameLoop();
@@ -305,14 +318,18 @@ function fireProjectile() {
   );
 }
 
+
 window.addEventListener("mousedown", (e) => {
-  if (gameStarted && !gameOver && e.button === 0) {
+  if (gameStarted && !gameOver && !isPaused && e.button === 0) {
     fireProjectile();
   }
 });
 
 window.addEventListener("keydown", (e) => {
-  if (gameStarted) {
+  if (e.code === "Escape" && gameStarted && !gameOver) {
+    isPaused = !isPaused;
+  }
+  else if (gameStarted) {
     switch (e.code) {
       case "KeyW":
         KEYPRESS.w_key.pressed = true;
