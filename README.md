@@ -7,4 +7,5 @@ Built with the Canvas API.
   <li>Modularize and optimize code <i>(Almost done)</i></li>
   <li>Further optimizations with rendering</li>
   <li>Fix slider thumb styling for Chromium based browsers</li>
+  <li>Pause menu...?</li>
 </ul>
