@@ -41,14 +41,14 @@ volumeSlider.setAttribute("type", "range");
 volumeSlider.setAttribute("min", "0");
 volumeSlider.setAttribute("max", "1");
 volumeSlider.setAttribute("step", "0.01");
-volumeSlider.setAttribute("value", "0.1");
+volumeSlider.setAttribute("value", "0.15");
 volumeSlider.addEventListener("input", updateVolume);
 
 CANVAS.parentNode.appendChild(musicToggleButton);
 CANVAS.parentNode.appendChild(volumeSlider);
 
 // Default volume in case the user has autoplay enabled to prevent deafening on window load.
-MUSIC.volume = 0.1;
+MUSIC.volume = 0.15;
 
 // Set the initial volume based on the slider value.
 export function updateVolume() {

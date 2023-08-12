@@ -107,17 +107,17 @@ class Player {
       }
   
       // Enables projectiles to "wrap around" the canvas.
-      if (this.coordinates.x < 0) {
-        this.coordinates.x = CANVAS.width;
-      } else if (this.coordinates.x > CANVAS.width) {
-        this.coordinates.x = 0;
-      }
+      // if (this.coordinates.x < 0) {
+      //   this.coordinates.x = CANVAS.width;
+      // } else if (this.coordinates.x > CANVAS.width) {
+      //   this.coordinates.x = 0;
+      // }
   
-      if (this.coordinates.y < 0) {
-        this.coordinates.y = CANVAS.height;
-      } else if (this.coordinates.y > CANVAS.height) {
-        this.coordinates.y = 0;
-      }
+      // if (this.coordinates.y < 0) {
+      //   this.coordinates.y = CANVAS.height;
+      // } else if (this.coordinates.y > CANVAS.height) {
+      //   this.coordinates.y = 0;
+      // }
     }
   }
   
