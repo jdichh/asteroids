@@ -6,13 +6,12 @@ import { scoreBoard } from "./javascript/scoreUtils.js";
 import { drawStartScreenInfo } from "./javascript/startScreenCanvas.js";
 import { drawRestartScreenInfo } from "./javascript/restartScreenCanvas.js";
 import { resetScore, increaseScore } from "./javascript/scoreUtils.js";
+import { controlScheme } from "./javascript/controlScheme.js";
+import { enableCanvasWrap } from "./javascript/canvasWrap.js";
 import {
   ASTEROIDS,
   MAX_ASTEROIDS,
   FRAMERATE,
-  MOVEMENT_SPEED,
-  ROTATION_SPEED,
-  DECELERATION_RATE,
   PROJECTILES,
   EXPLOSIONS,
   PROJECTILE_SPEED,
@@ -97,10 +96,10 @@ function detectCollisions() {
         const explosion = {
           coordinates: { x: ASTEROID.coordinates.x, y: ASTEROID.coordinates.y },
           particles: [],
-          maxParticles: 30,
+          maxParticles: 15,
           particleSpeed: 2,
           particleRadius: 1.5,
-          explosionDuration: 60, // Duration of the explosion in frames
+          explosionDuration: 20, // Duration of the explosion in frames
           frameCount: 0,
         };
         EXPLOSIONS.push(explosion);
@@ -156,7 +155,7 @@ function isPointOnLineSegment(x, y, start, end) {
 }
 ///// End of Hit Detection /////
 
-///// Main Game Data /////
+///// Main Game Loop /////
 function restartGame() {
   gameOver = false;
   resetScore()
@@ -250,39 +249,8 @@ function mainGame(currentTime) {
   scoreBoard()
 
   // Controls
-  if (KEYPRESS.w_key.pressed || KEYPRESS.s_key.pressed) {
-    const movementSpeed = Math.abs(MOVEMENT_SPEED); // Use absolute value of movement speed
-
-    if (KEYPRESS.w_key.pressed) {
-      player.velocity.x = Math.cos(player.rotation) * movementSpeed;
-      player.velocity.y = Math.sin(player.rotation) * movementSpeed;
-    } else if (KEYPRESS.s_key.pressed) {
-      player.velocity.x = -Math.cos(player.rotation) * movementSpeed;
-      player.velocity.y = -Math.sin(player.rotation) * movementSpeed;
-    }
-  } else {
-    player.velocity.x *= DECELERATION_RATE;
-    player.velocity.y *= DECELERATION_RATE;
-  }
-
-  if (KEYPRESS.d_key.pressed) {
-    player.rotation += ROTATION_SPEED;
-  } else if (KEYPRESS.a_key.pressed) {
-    player.rotation -= ROTATION_SPEED;
-  }
-
-  // Enables the spaceship to "wrap around" the canvas.
-  if (player.coordinates.x < 0) {
-    player.coordinates.x = CANVAS.width;
-  } else if (player.coordinates.x > CANVAS.width) {
-    player.coordinates.x = 0;
-  }
-
-  if (player.coordinates.y < 0) {
-    player.coordinates.y = CANVAS.height;
-  } else if (player.coordinates.y > CANVAS.height) {
-    player.coordinates.y = 0;
-  }
+  controlScheme()
+  enableCanvasWrap()
 
   // Update and show explosions on projectile to asteroid impact.
   for (let i = EXPLOSIONS.length - 1; i >= 0; i--) {
@@ -347,14 +315,14 @@ function mainGame(currentTime) {
     PROJECTILE.updateProjectile();
   }
 
-  // Garbage collector for projectiles.
+  // Garbage collector for projectiles that traveled past the max distance.
   if (PROJECTILES.distanceTraveled >= PROJECTILES.maxDistance) {
     PROJECTILES.splice(i, 1);
   }
 }
 
 mainGame();
-///// End of Main Game Data /////
+///// End of Main Game Loop /////
 
 ///// Controls /////
 function fireProjectile() {
@@ -373,6 +341,12 @@ function fireProjectile() {
     })
   );
 }
+
+window.addEventListener("mousedown", (e) => {
+  if (gameStarted && !gameOver && e.button === 0) {
+    fireProjectile();
+  }
+});
 
 window.addEventListener("keydown", (e) => {
   if (gameStarted) {
@@ -409,11 +383,5 @@ window.addEventListener("keyup", (e) => {
         KEYPRESS.d_key.pressed = false;
         break;
     }
-  }
-});
-
-window.addEventListener("mousedown", (e) => {
-  if (gameStarted && !gameOver && e.button === 0) {
-    fireProjectile();
   }
 });
