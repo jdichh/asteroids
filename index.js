@@ -31,7 +31,7 @@ export let gameStarted = false;
 export let isPaused = false;
 let asteroidSpawnInterval;
 
-///// Asteroid Setup & Spawning /////
+///// Asteroid Management /////
 function updateAndDrawAsteroids() {
   const asteroidsToRemove = [];
 
@@ -63,7 +63,7 @@ function updateAndDrawAsteroids() {
     asteroid.drawAsteroid();
   }
 }
-///// End of Asteroid Setup & Spawning /////
+///// End of Asteroid Management /////
 
 ///// Hit Detection /////
 function detectCollisions() {
@@ -115,7 +115,7 @@ function detectCollisions() {
 }
 
 function playerCollided(circle, triangle) {
-  // Check if the circle is colliding with any of the triangle's edges.
+// Check if the circle is colliding with any of the triangle's edges.
   for (let i = 0; i < 3; i++) {
     let start = triangle[i];
     let end = triangle[(i + 1) % 3];
