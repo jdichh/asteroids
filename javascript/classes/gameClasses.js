@@ -125,7 +125,7 @@ export class Asteroid {
     constructor({ coordinates, velocity }) {
       this.coordinates = coordinates;
       this.velocity = velocity;
-      this.radius = 120 * Math.random() + 5;
+      this.radius = 100 * Math.random() + 5;
       this.numPoints = Math.floor(Math.random() * 4) + 5; // Random number of points for the asteroid shape.
     }
   
