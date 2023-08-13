@@ -12,6 +12,7 @@ export const musicFiles = [
   "./assets/music/music5.mp3",
   "./assets/music/music6.mp3",
   "./assets/music/music7.mp3",
+  "./assets/music/music8.mp3",
 ];
 
 export const preloadedMusicFiles = musicFiles.map((musicFile) => {
@@ -39,14 +40,14 @@ volumeSlider.setAttribute("type", "range");
 volumeSlider.setAttribute("min", "0");
 volumeSlider.setAttribute("max", "1");
 volumeSlider.setAttribute("step", "0.01");
-volumeSlider.setAttribute("value", "0.1");
+volumeSlider.setAttribute("value", "0.15");
 volumeSlider.addEventListener("input", updateVolume);
 
 CANVAS.parentNode.appendChild(musicToggleButton);
 CANVAS.parentNode.appendChild(volumeSlider);
 
 // Default volume in case the user has autoplay enabled to prevent the user to be deaf after the page loads.
-MUSIC.volume = 0.1;
+MUSIC.volume = 0.15;
 
 // Set the initial volume based on the slider value.
 export function updateVolume() {
@@ -54,12 +55,12 @@ export function updateVolume() {
   MUSIC.volume = volume;
 }
 
-// MUSIC.playbackRate is for testing purposes.
+// MUSIC.playbackRate is for testing purposes, if music will autoplay after the current one has ended.
 function startMusic() {
   currentMusicIndex = Math.floor(Math.random() * musicFiles.length);
   MUSIC = preloadedMusicFiles[currentMusicIndex];
   MUSIC.currentTime = 0;
-  MUSIC.volume = 0.1;
+  updateVolume();
   // MUSIC.playbackRate = 3.5
   MUSIC.addEventListener("ended", playNextTrack);
   if (isMusicPlaying) {
@@ -72,7 +73,7 @@ export function playNextTrack() {
   currentMusicIndex = (currentMusicIndex + 1) % musicFiles.length;
   MUSIC = preloadedMusicFiles[currentMusicIndex];
   MUSIC.currentTime = 0;
-  MUSIC.volume = 0.1;
+  updateVolume();
   // MUSIC.playbackRate = 3.5
   MUSIC.addEventListener("ended", playNextTrack);
   if (isMusicPlaying) {

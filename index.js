@@ -101,10 +101,10 @@ function detectCollisions() {
         const explosion = {
           coordinates: { x: ASTEROID.coordinates.x, y: ASTEROID.coordinates.y },
           particles: [],
-          maxParticles: 40,
+          maxParticles: 20,
           particleSpeed: 2,
-          particleRadius: 0.5,
-          explosionDuration: 20, // Duration of the explosion in frames
+          particleRadius: 0.75,
+          explosionDuration: 30, // Duration of the explosion in frames
           frameCount: 0,
         };
         EXPLOSIONS.push(explosion);
