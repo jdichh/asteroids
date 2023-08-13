@@ -33,35 +33,24 @@ let asteroidSpawnInterval;
 
 ///// Asteroid Management /////
 function updateAndDrawAsteroids() {
-  const asteroidsToRemove = [];
-
-  for (let i = ASTEROIDS.length - 1; i >= 0; i--) {
-    const asteroid = ASTEROIDS[i];
+  // Create a new array containing filtered asteroids.
+  const updatedAsteroids = ASTEROIDS.filter((asteroid) => {
     asteroid.updateAsteroid();
-
     if (playerCollided(asteroid, player.getVertices())) {
       gameOver = true;
     }
+    return (
+      asteroid.coordinates.x >= 0 &&
+      asteroid.coordinates.x <= CANVAS.width &&
+      asteroid.coordinates.y >= 0 &&
+      asteroid.coordinates.y <= CANVAS.height
+    );
+  });
 
-    // Mark asteroids for removal if out of bounds.
-    if (
-      asteroid.coordinates.x < 0 ||
-      asteroid.coordinates.x > CANVAS.width ||
-      asteroid.coordinates.y < 0 ||
-      asteroid.coordinates.y > CANVAS.height
-    ) {
-      asteroidsToRemove.push(i);
-    }
-  }
-
-  // Remove marked asteroids outside the loop.
-  for (const index of asteroidsToRemove) {
-    ASTEROIDS.splice(index, 1);
-  }
-
-  for (const asteroid of ASTEROIDS) {
-    asteroid.drawAsteroid();
-  }
+  // Assign the new array back to the imported ASTEROIDS array.
+  ASTEROIDS.length = 0; // Clear the original array.
+  Array.prototype.push.apply(ASTEROIDS, updatedAsteroids); // Copy the filtered asteroids.
+  // console.log(ASTEROIDS);
 }
 ///// End of Asteroid Management /////
 
