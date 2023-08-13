@@ -56,32 +56,20 @@ export function updateVolume() {
 }
 
 // MUSIC.playbackRate is for testing purposes, if music will autoplay after the current one has ended.
-function startMusic() {
+export function playNextTrack() {
+  MUSIC.removeEventListener("ended", playNextTrack);
   currentMusicIndex = Math.floor(Math.random() * musicFiles.length);
   MUSIC = preloadedMusicFiles[currentMusicIndex];
   MUSIC.currentTime = 0;
   updateVolume();
-  // MUSIC.playbackRate = 3.5
+  // MUSIC.playbackRate = 1.5
   MUSIC.addEventListener("ended", playNextTrack);
   if (isMusicPlaying) {
     MUSIC.play();
   }
 }
 
-export function playNextTrack() {
-  MUSIC.removeEventListener("ended", playNextTrack);
-  currentMusicIndex = (currentMusicIndex + 1) % musicFiles.length;
-  MUSIC = preloadedMusicFiles[currentMusicIndex];
-  MUSIC.currentTime = 0;
-  updateVolume();
-  // MUSIC.playbackRate = 3.5
-  MUSIC.addEventListener("ended", playNextTrack);
-  if (isMusicPlaying) {
-    MUSIC.play();
-  }
-}
-
-startMusic();
+playNextTrack();
 
 function toggleMusic() {
   if (isMusicPlaying) {
