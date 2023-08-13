@@ -12,8 +12,8 @@ export function getAsteroidSpawnData() {
 }
 
 export function getRandomAsteroidVelocity() {
-  const randomVelocityX = (Math.random() - 0.4) * 10;
-  const randomVelocityY = (Math.random() - 0.4) * 10;
+  const randomVelocityX = (Math.random() - 0.5) * 9;
+  const randomVelocityY = (Math.random() - 0.5) * 9;
   return { x: randomVelocityX, y: randomVelocityY };
 }
 

@@ -78,7 +78,7 @@ function detectCollisions() {
       // Check if the distance is less than the sum of the projectile radius and asteroid radius.
       if (distance < PROJECTILE.radius + ASTEROID.radius) {
         // Score is based on the radius of the asteroid. The smaller the asteroid, the higher score it has.
-        const asteroidSizeMultiplier = 1 - ASTEROID.radius / 600;
+        const asteroidSizeMultiplier = 1 - ASTEROID.radius / 450;
         const baseScore = 15;
         const scoreIncrease = Math.round(baseScore * asteroidSizeMultiplier);
         increaseScore(scoreIncrease);
