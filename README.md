@@ -9,5 +9,5 @@ Built with the Canvas API.
   <li>Further code optimizations <i>- started on Aug. 12, 2023</i></li>
   <li>Modularize code <i>(Almost done - started on Aug. 12, 2023)</i></li>
   <li>Fix slider thumb styling for Chromium based browsers</li>
-  <li>Pause menu...? <i>- done on Aug. 12, 2023</i></li>
+  <li><strike>Pause menu...?</strike></li>
 </ul>
