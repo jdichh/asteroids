@@ -33,48 +33,56 @@ canvas {
   outline: 1px solid rgba(255,255,255, 0.8);
 }
 
-#volume-slider {
-  position: absolute;
-  top: 2%;
-  right: 4%;
-  width: 6%;
-  cursor: pointer;
-  background: none;
-  border: none;
-}
-
-#volume-slider::-webkit-slider-runnable-track {
-  background-color: rgb(220, 220, 220);
-  height: 4px;
-}
-
-#volume-slider::-moz-range-track {
-  background-color: rgb(220, 220, 220);
-  height: 4px;
-}
-
-#volume-slider::-webkit-slider-thumb,
-#volume-slider::-moz-range-thumb {
+/* Reset range slider */
+input[type="range"] {
+  -webkit-appearance: none;
   appearance: none;
-  width: 16px; 
-  height: 16px;
-  background-color: rgb(32,32,32);
-  border: 1px solid rgb(220, 220, 220);
-  border-radius: 50%; 
+  background: transparent;
   cursor: pointer;
+  border: none;
+  position: absolute;
+  width: 10rem;
+  top: 1.25rem;
+  right: 5rem;
 }
 
-#volume-slider::-webkit-slider-thumb:active,
-#volume-slider::-moz-range-thumb:active {
+input[type="range"]::-webkit-slider-runnable-track {
+  background: rgba(220, 220, 220, 0.4);
+  height: 0.1rem;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -7px;
+  background: rgb(220, 220, 220);
+  height: 1rem;
+  width: 1rem;
+  border-radius: 50%;
+}
+
+input[type="range"]::-moz-range-track {
+  background: rgba(220, 220, 220, 0.4);
+  height: 0.1rem;
+}
+
+input[type="range"]::-moz-range-thumb {
+  appearance: none;
   background-color: rgb(220, 220, 220);
+  height: 1rem;
+  width: 1rem;
+  border-radius: 50%;
 }
 
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-  #volume-slider {
-    top: 2.5%;
-    background-color: rgb(16, 16, 16);
-    height: 4px;
+@media (max-width: 1500px) {
+  input[type="range"] {
+    right: 2.1rem;
   }
 }
 
-/* I don't know yet how to change the styling of the thumb on Chrome based browsers, sorry! */
+@media (min-width: 2350px) {
+  input[type="range"] {
+    right: 6rem;
+  }
+}
+
