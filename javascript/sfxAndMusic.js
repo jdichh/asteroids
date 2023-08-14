@@ -19,6 +19,9 @@ export const preloadedMusicFiles = musicFiles.map((musicFile) => {
   const audio = new Audio();
   audio.src = musicFile;
   audio.preload = "auto";
+  audio.addEventListener("error", (event) => {
+    console.error("Error loading audio:", event);
+  });
   return audio;
 });
 
@@ -46,9 +49,6 @@ volumeSlider.addEventListener("input", updateVolume);
 CANVAS.parentNode.appendChild(musicToggleButton);
 CANVAS.parentNode.appendChild(volumeSlider);
 
-// Default volume in case the user has autoplay enabled to prevent the user to be deaf after the page loads.
-MUSIC.volume = 0.15;
-
 // Set the initial volume based on the slider value.
 export function updateVolume() {
   const volume = parseFloat(volumeSlider.value);
@@ -62,14 +62,12 @@ export function playNextTrack() {
   MUSIC = preloadedMusicFiles[currentMusicIndex];
   MUSIC.currentTime = 0;
   updateVolume();
-  // MUSIC.playbackRate = 1.5
+  // MUSIC.playbackRate = 5;
   MUSIC.addEventListener("ended", playNextTrack);
   if (isMusicPlaying) {
     MUSIC.play();
   }
 }
-
-playNextTrack();
 
 function toggleMusic() {
   if (isMusicPlaying) {
@@ -91,3 +89,5 @@ function toggleMusic() {
   isMusicPlaying = !isMusicPlaying;
   updateVolume();
 }
+
+playNextTrack();
