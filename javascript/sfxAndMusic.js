@@ -69,23 +69,23 @@ export function playNextTrack() {
   }
 }
 
+// If the button has been toggled, it will move to the next track.
 function toggleMusic() {
   if (isMusicPlaying) {
     MUSIC.pause();
     iconElement.classList.remove("fas", "fa-music", "fa-sm");
     iconElement.classList.remove("fas", "fa-play", "fa-sm");
     iconElement.classList.add("fas", "fa-stop", "fa-sm");
+  } else if (!MUSIC.paused) {
+    playNextTrack();
   } else {
-    if (!MUSIC.paused) {
-      playNextTrack();
-    } else {
-      playNextTrack();
-      MUSIC.play();
-      iconElement.classList.remove("fas", "fa-music", "fa-sm");
-      iconElement.classList.remove("fas", "fa-stop", "fa-sm");
-      iconElement.classList.add("fas", "fa-play", "fa-sm");
-    }
+    playNextTrack();
+    MUSIC.play();
+    iconElement.classList.remove("fas", "fa-music", "fa-sm");
+    iconElement.classList.remove("fas", "fa-stop", "fa-sm");
+    iconElement.classList.add("fas", "fa-play", "fa-sm");
   }
+
   isMusicPlaying = !isMusicPlaying;
   updateVolume();
 }
