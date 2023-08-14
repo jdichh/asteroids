@@ -8,6 +8,6 @@ Built with the Canvas API.
   <li>Improve FPS calculation for FPS limiter <i>- started on Aug. 12, 2023</i></li>
   <li>Further code optimizations <i>- started on Aug. 12, 2023</i></li>
   <li>Modularize code <i>(Almost done - started on Aug. 12, 2023)</i></li>
-  <li>Fix slider thumb styling for Chromium based browsers</li>
+  <li><strike>Fix slider thumb styling for Chromium based browsers</strike></li>
   <li><strike>Pause menu...?</strike></li>
 </ul>
