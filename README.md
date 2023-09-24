@@ -13,7 +13,6 @@ I used this [tutorial](https://www.youtube.com/playlist?list=PL4cUxeGkcC9iO8ai6L
   <li>QuadTree for hit detection for asteroids</li>
   <li>Improve hit detection for asteroids against player</li>
   <li>Vector mathematics for coordinates, distance & velocity -> gl-matrix?? </li>
-  <li>Improve FPS calculation for FPS limiter</li>
   <li>Further code optimizations</li>
   <li>Modularize code</li>
   <li><strike>Fix slider thumb styling for Chromium based browsers</strike></li>
